@@ -1531,23 +1531,25 @@ static int is_word_pre(const char *word)
 
 static int is_word_suf(const char *word)
 {
-    int i, state, symbol;
+    size_t i;
+    int state, symbol;
 
-    state = fsm_transition(&fsm_aswdP,0,'#');
+    state = fsm_transition(&fsm_aswdS,0,'#');
 
-    for (i=cst_strlen(word)-1; i >= 0 ; i--)
+    for (i = cst_strlen(word); i > 0; i--)
     {
-	if ((word[i] == 'n') || ((word[i] == 'm')))
-	    symbol = 'N';
-	else if (strchr("aeiouy",word[i]) != NULL)
-	    symbol = 'V';
-	else
-	    symbol = word[i];
-	state = fsm_transition(&fsm_aswdS,state,symbol);
-	if (state == -1)
-	    return 0;
-	else if (symbol == 'V')
-	    return 1;
+        char ch = word[i - 1];
+        if ((ch == 'n') || (ch == 'm'))
+            symbol = 'N';
+        else if (strchr("aeiouy", ch) != NULL)
+            symbol = 'V';
+        else
+            symbol = ch;
+        state = fsm_transition(&fsm_aswdS,state,symbol);
+        if (state == -1)
+            return 0;
+        else if (symbol == 'V')
+            return 1;
     }
     return 0;
 }
@@ -1566,3 +1568,4 @@ int us_aswd(const char *word)
 
     return i;
 }
+
