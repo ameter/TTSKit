@@ -348,10 +348,10 @@ float flite_ts_to_speech(cst_tokenstream *ts,
 	item_set_string(t,"punc",ts->postpunctuation);
         /* Mark it at the beginning of the token */
 	item_set_int(t,"file_pos",
-                     ts->file_pos-(1+ /* as we are already on the next char */
-                                   cst_strlen(token)+
-                                   cst_strlen(ts->prepunctuation)+
-                                   cst_strlen(ts->postpunctuation)));
+                     ts->file_pos - (1 + /* as we are already on the next char */
+                                     (int)cst_strlen(token) +
+                                     (int)cst_strlen(ts->prepunctuation) +
+                                     (int)cst_strlen(ts->postpunctuation)));
 	item_set_int(t,"line_number",ts->line_number);
     }
     if (utt) delete_utterance(utt);
@@ -490,7 +490,7 @@ int flite_mmap_clunit_voxdata(const char *voxdir, cst_voice *voice)
     int i;
 
     name = get_param_string(voice->features,"name","voice");
-    path = cst_alloc(char,cst_strlen(voxdir)+1+cst_strlen(name)+1+cst_strlen("voxdata")+1);
+    path = cst_alloc(char, (int)(cst_strlen(voxdir) + 1 + cst_strlen(name) + 1 + cst_strlen("voxdata") + 1));
     cst_sprintf(path,"%s/%s.voxdata",voxdir,name);
 
     vd = cst_mmap_file(path);

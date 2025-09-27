@@ -589,7 +589,12 @@ char *clunits_ldom_phone_word(cst_item *s)
     if (cst_streq(name,silence))
     {
 	pname = ffeature_string(s,"p.name");
-	clname = cst_alloc(char, cst_strlen(silence)+1+cst_strlen(pname)+1);
+    {
+        size_t count = cst_strlen(silence) + 1 + cst_strlen(pname) + 1;
+        if (count > (size_t)(INT_MAX / sizeof(char)))
+            return NULL;
+        clname = (char *)cst_safe_alloc((int)(count * sizeof(char)));
+    }
 	cst_sprintf(clname,"%s_%s",silence,pname);
     }
     else
@@ -600,7 +605,15 @@ char *clunits_ldom_phone_word(cst_item *s)
 	for (q=p=dname; *p != '\0'; p++)
 	    if (*p != '\'') *p = *q++;
 	*q = '\0';
-	clname = cst_alloc(char, cst_strlen(name)+1+cst_strlen(dname)+1);
+    {
+        size_t count = cst_strlen(name) + 1 + cst_strlen(dname) + 1;
+        if (count > (size_t)(INT_MAX / sizeof(char)))
+        {
+            cst_free(dname);
+            return NULL;
+        }
+        clname = (char *)cst_safe_alloc((int)(count * sizeof(char)));
+    }
 	cst_sprintf(clname,"%s_%s",name,dname);
 	cst_free(dname);
     }

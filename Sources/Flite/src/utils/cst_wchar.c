@@ -40,38 +40,50 @@
 #include "cst_wchar.h"
 #include "cst_alloc.h"
 #include "cst_string.h"
+#include <stddef.h>
+#include <limits.h>
 
 wchar_t *cst_cstr2wstr(const char *s)
 {
     /* Actually this is naive and is really only for ASCII wchar_ts */
-    int i,l;
+    size_t i,l;
     wchar_t *w;
     
     l=cst_strlen(s);
-    w = cst_alloc(wchar_t,l+1);
+    {
+        size_t count = l + 1;
+        if (count > (size_t)(INT_MAX / sizeof(wchar_t)))
+            return NULL; /* overflow protection */
+        w = (wchar_t *)cst_safe_alloc((int)(count * sizeof(wchar_t)));
+    }
 
     for (i=0; i<l; i++)
     {
         w[i] = (wchar_t)s[i];
     }
-    w[i]=(wchar_t)'\0';
+    w[i] = L'\0';
     
     return w;
 }
 
 char *cst_wstr2cstr(const wchar_t *w)
 {
-    int i,l;
+    size_t i,l;
     char *s;
 
     l=cst_wstrlen(w);
-    s = cst_alloc(char,l+1);
+    {
+        size_t count = l + 1;
+        if (count > (size_t)(INT_MAX / sizeof(char)))
+            return NULL; /* overflow protection */
+        s = (char *)cst_safe_alloc((int)(count * sizeof(char)));
+    }
     
     for (i=0; i<l; i++)
     {
         s[i] = (char)w[i];
     }
-    s[i]=(wchar_t)'\0';
+    s[i] = '\0';
     
     return s;
 }

@@ -44,6 +44,7 @@
 #include "cst_file.h"
 #include "cst_error.h"
 #include "cst_regex.h"
+#include <limits.h>
 
 /* The following 3 lines were added by Chris Ameter in 2025 to
    suppress console log spam from this file during debugging.
@@ -243,8 +244,13 @@ hs_regcomp(const char *exp)
 
 	/* Allocate space. */
 	r = cst_alloc(cst_regex,1);
+    {
+        size_t count = (size_t)regsize;
+        if (count > (size_t)(INT_MAX / sizeof(char)))
+            FAIL("regexp too big");
+        r->program = (char *)cst_safe_alloc((int)(count * sizeof(char)));
+    }
 	r->regsize = regsize;
-	r->program = cst_alloc(char,regsize);
 	if (r == NULL)
 		FAIL("out of space");
 
@@ -825,7 +831,7 @@ hs_regexec(const cst_regex *prog, const char *string)
 			return(0);
 	}
 
-	state = cst_alloc(cst_regstate, 1);
+    state = (cst_regstate *)cst_safe_alloc((int)(sizeof(cst_regstate) * 1));
 	/* Mark beginning of line for ^ . */
 	state->bol = string;
 
@@ -1325,3 +1331,4 @@ char *s2;
 	return(count);
 }
 #endif
+

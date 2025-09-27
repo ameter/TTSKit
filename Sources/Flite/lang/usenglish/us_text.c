@@ -320,12 +320,18 @@ static cst_val *us_tokentowords_one(cst_item *token, const char *name)
     else if (cst_regex_match(cst_rx_commaint,name))
     {   /* 99,999,999 */
 	aaa = cst_strdup(name);
-	for (j=i=0; i < (signed int)cst_strlen(name); i++)
-	    if (name[i] != ',')
-	    {
-		aaa[j] = name[i];
-		j++;
-	    }
+	{
+        size_t nlen = cst_strlen(name);
+        size_t ii;
+        for (j = 0, ii = 0; ii < nlen; ii++)
+        {
+            if (name[ii] != ',')
+            {
+                aaa[j] = name[ii];
+                j++;
+            }
+        }
+    }
 	aaa[j] = '\0';
 	r = en_exp_real(aaa);
 	cst_free(aaa);
@@ -414,26 +420,30 @@ static cst_val *us_tokentowords_one(cst_item *token, const char *name)
 	    }
 	}
         ss = cons_val(string_val(aaa),ss);  /* note the order is now reversed */
-        if ((val_length(ss) == 2) &&
-            (atoi(val_string(val_car(val_cdr(ss)))) <
-             atoi(val_string(val_car(ss)))) &&  /* small to large */
-            (abs(cst_strlen(val_string(val_car(val_cdr(ss)))) -
-                 cst_strlen(val_string(val_car(ss)))) < 2)) /* not too diff */
         {
-            /* Should get 22-23 November, or 1998-1999 right */
-            r = 
-                val_append(us_tokentowords_one(token,val_string(val_car(val_cdr(ss)))),
-                  cons_val(string_val("to"),
-                   us_tokentowords_one(token,val_string(val_car(ss)))));
-        }
-        else
-        {  /* Its just a bunch of ids */
-            r = 0;
-            for (rr=ss; rr; rr=val_cdr(rr))
+            size_t __l1 = cst_strlen(val_string(val_car(val_cdr(ss))));
+            size_t __l2 = cst_strlen(val_string(val_car(ss)));
+            size_t __diff = (__l1 > __l2) ? (__l1 - __l2) : (__l2 - __l1);
+            if ((val_length(ss) == 2) &&
+                (atoi(val_string(val_car(val_cdr(ss)))) <
+                 atoi(val_string(val_car(ss)))) &&  /* small to large */
+                (__diff < 2)) /* not too diff */
             {
-                r = val_append(
-                     add_break(en_exp_digits(val_string(val_car(rr)))),r);
+                /* Should get 22-23 November, or 1998-1999 right */
+                r = 
+                    val_append(us_tokentowords_one(token,val_string(val_car(val_cdr(ss)))),
+                      cons_val(string_val("to"),
+                       us_tokentowords_one(token,val_string(val_car(ss)))));
+            }
+            else
+            {  /* Its just a bunch of ids */
+                r = 0;
+                for (rr=ss; rr; rr=val_cdr(rr))
+                {
+                    r = val_append(
+                         add_break(en_exp_digits(val_string(val_car(rr)))),r);
 
+                }
             }
         }
         delete_val(ss);
@@ -774,15 +784,19 @@ static cst_val *us_tokentowords_one(cst_item *token, const char *name)
     }
     else if (cst_regex_match(wandm,name))
     {   /* weights and measures */
-        for (j=cst_strlen(name)-1; j > 0; j--)
-            if (cst_strchr("0123456789",name[j]))
+        /* Use size_t to avoid precision loss when working with cst_strlen */
+        size_t j_index = cst_strlen(name);
+        while (j_index > 0)
+        {
+            if (cst_strchr("0123456789", name[j_index - 1]))
                 break;
-        j += 1;
+            j_index--;
+        }
         for (i=0; wandm_abbrevs[i][0]; i++)
-            if (cst_streq(name+j,wandm_abbrevs[i][0]))
+            if (cst_streq(name + j_index, wandm_abbrevs[i][0]))
                 break;
         aaa = cst_strdup(name);
-        aaa[j] = '\0';
+        aaa[j_index] = '\0';
         /* remove any commas */
         for (k=0,l=0; aaa[l]; k++,l++)
         {
@@ -791,8 +805,8 @@ static cst_val *us_tokentowords_one(cst_item *token, const char *name)
         }
         aaa[k] = '\0';
         if (!wandm_abbrevs[i][0]) /* didn't find an expansion */
-	    r = val_append(en_exp_number(aaa),
-			   us_tokentowords_one(token,name+j));
+            r = val_append(en_exp_number(aaa),
+                           us_tokentowords_one(token, name + j_index));
         else
             r = val_append(en_exp_number(aaa),
                            cons_val(string_val(wandm_abbrevs[i][1]),NULL));
@@ -997,6 +1011,4 @@ static cst_val *state_name(const char *name,cst_item *t)
     return r;
 
 }
-
-
 

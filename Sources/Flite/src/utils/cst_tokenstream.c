@@ -314,7 +314,7 @@ static void get_token_postpunctuation(cst_tokenstream *ts)
 {
     int p,t;
 
-    t = cst_strlen(ts->token);
+    t = (int)cst_strlen(ts->token);
     for (p=t;
 	 (p > 0) && 
 	     ((ts->token[p] == '\0') ||
@@ -394,7 +394,7 @@ int ts_get_stream_size(cst_tokenstream *ts)
         cst_fseek(ts->fd,(long)current_pos,CST_SEEK_ABSOLUTE);
         return end_pos;
     } else if (ts->string_buffer)
-        return cst_strlen(ts->string_buffer);
+        return (int)cst_strlen(ts->string_buffer);
     else if (ts->open)
         return (ts->size)(ts);
     else
@@ -577,3 +577,4 @@ int ts_read(void *buff, int size, int num, cst_tokenstream *ts)
 
     return i;
 }
+

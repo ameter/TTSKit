@@ -455,10 +455,10 @@ static float flite_ssml_to_speech_ts(cst_tokenstream *ts,
             item_set_string(t,"punc",ts->postpunctuation);
             /* Mark it at the beginning of the token */
             item_set_int(t,"file_pos",
-                 ts->file_pos-(1+ /* as we are already on the next char */
-                               cst_strlen(token)+
-                               cst_strlen(ts->prepunctuation)+
-                               cst_strlen(ts->postpunctuation)));
+                 ts->file_pos - (1 + /* as we are already on the next char */
+                                 (int)cst_strlen(token) +
+                                 (int)cst_strlen(ts->prepunctuation) +
+                                 (int)cst_strlen(ts->postpunctuation)));
             item_set_int(t,"line_number",ts->line_number);
             feat_copy_into(ssml_word_feats,item_feats(t));
         }
@@ -557,5 +557,6 @@ float flite_ssml_text_to_speech(const char *text,
     return d;
 
 }
+
 
 

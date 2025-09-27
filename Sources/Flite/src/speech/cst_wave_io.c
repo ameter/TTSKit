@@ -40,6 +40,7 @@
 #include "cst_string.h"
 #include "cst_wave.h"
 #include "cst_file.h"
+#include <limits.h>
 
 void cst_wave_resample(cst_wave *w, int sample_rate)
 {
@@ -196,19 +197,28 @@ int cst_wave_append_riff(cst_wave *w,const char *filename)
     }
 
     cst_fseek(fd,4,CST_SEEK_ABSOLUTE);
-    num_bytes = hdr.num_bytes + (n*sizeof(short));
-    if (CST_BIG_ENDIAN) num_bytes = SWAPINT(num_bytes);
-    cst_fwrite(fd,&num_bytes,4,1); /* num bytes in whole file */
+    {
+        size_t nb = (size_t)hdr.num_bytes + (size_t)n * sizeof(short);
+        int num_bytes32 = (nb > (size_t)INT_MAX) ? INT_MAX : (int)nb;
+        int num_bytes_be = num_bytes32;
+        if (CST_BIG_ENDIAN) num_bytes_be = SWAPINT(num_bytes_be);
+        cst_fwrite(fd, &num_bytes_be, 4, 1); /* num bytes in whole file */
+    }
     cst_fseek(fd,4+4+4+4 +4+2+2 ,CST_SEEK_ABSOLUTE);
     sample_rate = w->sample_rate;
     if (CST_BIG_ENDIAN) sample_rate = SWAPINT(sample_rate);
     cst_fwrite(fd,&sample_rate,4,1); /* sample rate */
     cst_fseek(fd,4+4+4+4+4+2+2+4+4+2+2+4,CST_SEEK_ABSOLUTE); 
-    num_bytes = 
-	(sizeof(short) * cst_wave_num_channels(w) * cst_wave_num_samples(w)) +
-	(sizeof(short) * hdr.num_channels * hdr.num_samples);
-    if (CST_BIG_ENDIAN) num_bytes = SWAPINT(num_bytes);
-    cst_fwrite(fd,&num_bytes,4,1); /* num bytes in data */
+    {
+        size_t nb =
+	    (size_t)sizeof(short) * (size_t)cst_wave_num_channels(w) *
+	    (size_t)cst_wave_num_samples(w) +
+	    (size_t)sizeof(short) * (size_t)hdr.num_channels * (size_t)hdr.num_samples;
+        int num_bytes32 = (nb > (size_t)INT_MAX) ? INT_MAX : (int)nb;
+        int num_bytes_be = num_bytes32;
+        if (CST_BIG_ENDIAN) num_bytes_be = SWAPINT(num_bytes_be);
+        cst_fwrite(fd, &num_bytes_be, 4, 1); /* num bytes in data */
+    }
     cst_fclose(fd);
 
     return rv;
@@ -241,11 +251,14 @@ int cst_wave_save_riff_fd(cst_wave *w, cst_file fd)
 
     info = "RIFF";
     cst_fwrite(fd,info,4,1);
-    num_bytes = (cst_wave_num_samples(w)
-		 * cst_wave_num_channels(w)
-		 * sizeof(short)) + 8 + 16 + 12;
-    if (CST_BIG_ENDIAN) num_bytes = SWAPINT(num_bytes);
-    cst_fwrite(fd,&num_bytes,4,1); /* num bytes in whole file */
+    {
+        size_t nb = (size_t)cst_wave_num_samples(w) * (size_t)cst_wave_num_channels(w) * sizeof(short);
+        nb += 8 + 16 + 12;
+        int num_bytes32 = (nb > (size_t)INT_MAX) ? INT_MAX : (int)nb;
+        int num_bytes_be = num_bytes32;
+        if (CST_BIG_ENDIAN) num_bytes_be = SWAPINT(num_bytes_be);
+        cst_fwrite(fd, &num_bytes_be, 4, 1); /* num bytes in whole file */
+    }
     info = "WAVE";
     cst_fwrite(fd,info,1,4);
     info = "fmt ";
@@ -262,11 +275,12 @@ int cst_wave_save_riff_fd(cst_wave *w, cst_file fd)
     d_int = cst_wave_sample_rate(w);  /* sample rate */
     if (CST_BIG_ENDIAN) d_int = SWAPINT(d_int);
     cst_fwrite(fd,&d_int,4,1);  
-    d_int = (cst_wave_sample_rate(w)
-	     * cst_wave_num_channels(w)
-	     * sizeof(short));        /* average bytes per second */
-    if (CST_BIG_ENDIAN) d_int = SWAPINT(d_int);
-    cst_fwrite(fd,&d_int,4,1);
+    {
+        size_t nb = (size_t)cst_wave_sample_rate(w) * (size_t)cst_wave_num_channels(w) * sizeof(short);
+        int d_int32 = (nb > (size_t)INT_MAX) ? INT_MAX : (int)nb; /* average bytes per second */
+        if (CST_BIG_ENDIAN) d_int32 = SWAPINT(d_int32);
+        cst_fwrite(fd, &d_int32, 4, 1);
+    }
     d_short = (cst_wave_num_channels(w)
 	       * sizeof(short));      /* block align */
     if (CST_BIG_ENDIAN) d_short = SWAPSHORT(d_short);
@@ -276,11 +290,12 @@ int cst_wave_save_riff_fd(cst_wave *w, cst_file fd)
     cst_fwrite(fd,&d_short,2,1);          
     info = "data";
     cst_fwrite(fd,info,1,4);
-    d_int = (cst_wave_num_channels(w)
-	     * cst_wave_num_samples(w)
-	     * sizeof(short));	      /* bytes in data */
-    if (CST_BIG_ENDIAN) d_int = SWAPINT(d_int);
-    cst_fwrite(fd,&d_int,4,1);  
+    {
+        size_t nb = (size_t)cst_wave_num_channels(w) * (size_t)cst_wave_num_samples(w) * sizeof(short);
+        int d_int32 = (nb > (size_t)INT_MAX) ? INT_MAX : (int)nb; /* bytes in data */
+        if (CST_BIG_ENDIAN) d_int32 = SWAPINT(d_int32);
+        cst_fwrite(fd, &d_int32, 4, 1);
+    }
 
     if (CST_BIG_ENDIAN)
     {
@@ -481,3 +496,4 @@ int cst_wave_load_riff_fd(cst_wave *w,cst_file fd)
 
     return CST_OK_FORMAT;
 }
+

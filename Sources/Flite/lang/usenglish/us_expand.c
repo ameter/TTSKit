@@ -118,10 +118,10 @@ static const char * const ord2enty[] = {
 cst_val *en_exp_number(const char *numstring)
 {
     /* Expand given token to list of words pronouncing it as a number */
-    int num_digits = cst_strlen(numstring);
+    size_t num_digits = cst_strlen(numstring);
     char part[4];
     cst_val *p;
-    int i;
+    size_t i;
 
     if (num_digits == 0)
 	return NULL;
@@ -203,16 +203,17 @@ cst_val *en_exp_ordinal(const char *rawnumstring)
     const char *l;
     const char *ord;
     char *numstring;
-    int i,j;
+    size_t i,j;
 
     numstring = cst_strdup(rawnumstring);
-    for (j=i=0; i < (signed int)cst_strlen(rawnumstring); i++)
+    for (j = 0, i = 0; i < cst_strlen(rawnumstring); i++)
 	if (rawnumstring[i] != ',')
 	{
 	    numstring[j] = rawnumstring[i];
 	    j++;
 	}
     numstring[j] = '\0';
+
     card = val_reverse(en_exp_number(numstring));
     if (!card)
         card = cons_val(string_val("zero"),0);
@@ -409,5 +410,7 @@ int en_exp_roman(const char *roman)
     }
     return val;
 }
+
+
 
 

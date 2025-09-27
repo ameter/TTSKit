@@ -41,6 +41,7 @@
 #include "cst_features.h"
 #include "cst_lexicon.h"
 #include "cst_tokenstream.h"
+#include <limits.h>
 
 CST_VAL_REGISTER_TYPE_NODEL(lexicon,cst_lexicon)
 
@@ -233,8 +234,13 @@ int in_lex(const cst_lexicon *l, const char *word, const char *pos,
     /* return TRUE is its in the lexicon */
     int r = FALSE, i;
     char *wp;
+    {
+        size_t count = cst_strlen(word) + 2;
+        if (count > (size_t)(INT_MAX / sizeof(char)))
+            return FALSE;
+        wp = (char *)cst_safe_alloc((int)(count * sizeof(char)));
+    }
 
-    wp = cst_alloc(char,cst_strlen(word)+2);
     cst_sprintf(wp,"%c%s",(pos ? pos[0] : '0'),word);
 
     for (i=0; l->addenda && l->addenda[i]; i++)
@@ -263,8 +269,13 @@ cst_val *lex_lookup(const cst_lexicon *l, const char *word, const char *pos,
     char *wp;
     cst_val *phones = 0;
     int found = FALSE;
+    {
+        size_t count = cst_strlen(word) + 2;
+        if (count > (size_t)(INT_MAX / sizeof(char)))
+            return NULL;
+        wp = (char *)cst_safe_alloc((int)(count * sizeof(char)));
+    }
 
-    wp = cst_alloc(char,cst_strlen(word)+2);
     cst_sprintf(wp,"%c%s",(pos ? pos[0] : '0'),word);
 
     if (l->addenda)

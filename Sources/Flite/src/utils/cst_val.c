@@ -671,7 +671,7 @@ cst_string *cst_implode(const cst_val *sl)
     for (v=sl; v; v=val_cdr(v))
     {
         if (val_stringp(val_car(v)))
-            l += cst_strlen(val_string(val_car(v)));
+            l += (int)cst_strlen(val_string(val_car(v)));
     }
 
     s = cst_alloc(cst_string,l+1);
@@ -708,6 +708,4 @@ cst_val *val_readlist_string(const char *str)
 
     return val_reverse(v);
 }
-
-
 

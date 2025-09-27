@@ -44,6 +44,7 @@
 #include "cst_regex.h"
 #include "cst_ffeatures.h"
 #include "us_ffeatures.h"
+#include <limits.h>
 
 static const cst_val *gpos(const cst_item *word);
 
@@ -79,8 +80,11 @@ static const cst_val *gpos(const cst_item *word)
 static const cst_val *num_digits(const cst_item *token)
 {   
     const char *name = item_feat_string(token,"name");
-
-    return val_int_n(cst_strlen(name));
+    {
+        size_t n = cst_strlen(name);
+        int ni = (n > (size_t)INT_MAX) ? INT_MAX : (int)n;
+        return val_int_n(ni);
+    }
 }
 
 static const cst_val *month_range(const cst_item *token)
@@ -162,7 +166,7 @@ static const cst_val *token_pos_guess(const cst_item *token)
 const cst_val *content_words_in(const cst_item *p)
 {
     const cst_item *s;
-    int i=0;
+    size_t i=0;
     p=item_as(p,"Word");
     s=item_as(path_to_item(p,"R:SylStructure.R:Phrase.parent.daughter1"),"Word");
     for (;s && !item_equal(p,s);s=item_next(s))
@@ -170,13 +174,13 @@ const cst_val *content_words_in(const cst_item *p)
         if (cst_streq(ffeature_string(s,"gpos"),"content"))
         {i++;}
     }
-    return val_string_n(i);
+    return val_string_n((int)((i > (size_t)INT_MAX) ? INT_MAX : i));
 }
 
 const cst_val *content_words_out(const cst_item *p)
 {
     const cst_item *s;
-    int i=0;
+    size_t i=0;
     p=item_as(p,"Word");
     s=item_as(path_to_item(p,"R:SylStructure.R:Phrase.parent.daughtern"),"Word");
 #if 1 /* fix by uratec */
@@ -193,7 +197,7 @@ const cst_val *content_words_out(const cst_item *p)
     }
     if(cst_streq(ffeature_string(s,"gpos"), "content")){i++;}
 #endif
-    return val_string_n(i);
+    return val_string_n((int)((i > (size_t)INT_MAX) ? INT_MAX : i));
 }
 
 const cst_val *cg_content_words_in_phrase(const cst_item *p)
@@ -218,3 +222,4 @@ void us_ff_register(cst_features *ffunctions)
     ff_register(ffunctions, "lisp_cg_content_words_in_phrase",cg_content_words_in_phrase);
 
 }
+

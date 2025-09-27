@@ -46,6 +46,7 @@
 #include "cst_string.h"
 #include "cst_tokenstream.h"
 #include "cst_socket.h"
+#include <limits.h>
 
 #ifndef CST_NO_SOCKETS
 #ifndef _MSC_VER
@@ -61,7 +62,7 @@ int cst_urlp(const char *url)
 {
     /* Return 1 if url is a url, 0 otherwise */
     /* This is decided by the initial substring being "http:" or "file:" */
-    if ((cst_strlen(url) > 4) &&
+    if (((int)cst_strlen(url) > 4) &&
         (cst_streqn("http:",url,5) ||
          cst_streqn("file:",url,5)))
         return TRUE;
@@ -114,9 +115,18 @@ cst_file cst_url_open(const char *url)
             return NULL;
         }
 
-        url_request = cst_alloc(char,cst_strlen(url)+17);
+        {
+            size_t count = cst_strlen(url) + 17;
+            if (count > (size_t)(INT_MAX / sizeof(char)))
+            {
+                cst_free(host);
+                ts_close(urlts);
+                return NULL;
+            }
+            url_request = (char *)cst_safe_alloc((int)(count * sizeof(char)));
+        }
         cst_sprintf(url_request,"GET %s HTTP/1.2\n\n",url);
-        n = write(fd,url_request,cst_strlen(url_request));
+        n = write(fd, url_request, (int)cst_strlen(url_request));
         cst_free(url_request);
 
         /* Skip http header -- until \n\n */

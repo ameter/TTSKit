@@ -57,6 +57,7 @@ int play_wave_client(cst_wave *w,const char *servername,int port,
 		     const char *encoding)
 {
     int audiofd,q,i,n,r;
+    ssize_t bytes_written;
     int sample_width;
     unsigned char bytes[CST_AUDIOBUFFSIZE];
     short shorts[CST_AUDIOBUFFSIZE];
@@ -98,7 +99,8 @@ int play_wave_client(cst_wave *w,const char *servername,int port,
 	header.channels = SWAPINT(header.channels);
     }
 
-    if (write(audiofd, &header, sizeof(header)) != sizeof(header))
+    bytes_written = write(audiofd, &header, sizeof(header));
+    if (bytes_written != (ssize_t)sizeof(header))
     {
 	cst_errmsg("auclinet: failed to write header to server\n");
 	return CST_ERROR_FORMAT;
@@ -114,7 +116,11 @@ int play_wave_client(cst_wave *w,const char *servername,int port,
 	{
 	    for (q=0; q<n; q++)
 		bytes[q] = cst_short_to_ulaw(w->samples[i+q]);
-	    r = write(audiofd,bytes,n);
+	    bytes_written = write(audiofd, bytes, (size_t)n);
+            if (bytes_written < 0)
+                r = -1;
+            else
+                r = (int)bytes_written;
 	}
 	else 
 	{
@@ -123,8 +129,11 @@ int play_wave_client(cst_wave *w,const char *servername,int port,
 		    shorts[q] = SWAPSHORT(w->samples[i+q]);
 		else
 		    shorts[q] = w->samples[i+q];
-	    r = write(audiofd,shorts,n*2);
-	    r /= 2;
+	    bytes_written = write(audiofd, shorts, (size_t)(n * 2));
+            if (bytes_written < 0)
+                r = -1;
+            else
+                r = (int)(bytes_written / 2);
 	}
 	if (r <= 0)
 	    cst_errmsg("failed to write %d samples\n",n);
@@ -136,3 +145,4 @@ int play_wave_client(cst_wave *w,const char *servername,int port,
 }
 
 #endif
+

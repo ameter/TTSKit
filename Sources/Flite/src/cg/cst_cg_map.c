@@ -45,7 +45,7 @@ const char * const cg_voice_header_string = "CMU_FLITE_CG_VOXDATA-v2.0";
 int cst_cg_read_header(cst_file fd)
 {
     char header[200];
-    unsigned int n;
+    long n;
     int endianness;
 
     n = cst_fread(fd,header,sizeof(char),cst_strlen(cg_voice_header_string)+1);
@@ -191,12 +191,12 @@ void cst_cg_free_db(cst_file fd, cst_cg_db *db)
 void *cst_read_padded(cst_file fd, int *numbytes, int bs)
 {
     void* ret;
-    int n; 
+    long n; 
 
     *numbytes = cst_read_int(fd,bs);
     ret = (void *)cst_alloc(char,*numbytes);
     n = cst_fread(fd,ret,sizeof(char),*numbytes);
-    if (n != (*numbytes))
+    if (n != (long)(*numbytes))
     {
         cst_free(ret);
         return NULL;
@@ -457,7 +457,7 @@ void cst_read_voice_feature(cst_file fd,char** fname, char** fval, int bs)
 int cst_read_int(cst_file fd,int byteswapped)
 {
     int val;
-    int n;
+    long n;
 
     n = cst_fread(fd,&val,sizeof(int),1);
     if (n != 1) return 0;
@@ -468,7 +468,7 @@ int cst_read_int(cst_file fd,int byteswapped)
 float cst_read_float(cst_file fd, int byteswapped)
 {
     float val;
-    int n;
+    long n;
 
     n = cst_fread(fd,&val,sizeof(float),1);
     if (n != 1)

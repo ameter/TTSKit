@@ -43,6 +43,7 @@
 #include "cst_cg.h"
 #include "cst_cart.h"
 #include "cst_cg_map.h"
+#include <limits.h>
 
 /* Write magic string */
 static void cst_cg_write_header(cst_file fd)
@@ -54,11 +55,13 @@ static void cst_cg_write_header(cst_file fd)
 
 }
 
-static void cst_cg_write_padded(cst_file fd, const void* data, int numbytes)
+static void cst_cg_write_padded(cst_file fd, const void* data, size_t numbytes)
 {
     /* We used to do 4-byte alignments. but that's not necessary now */
-    cst_fwrite(fd, &numbytes, sizeof(int), 1);
-    cst_fwrite(fd, data, 1, numbytes);
+    /* File format stores length as a 32-bit int; clamp if oversized to preserve format */
+    int numbytes32 = (numbytes > (size_t)INT_MAX) ? INT_MAX : (int)numbytes;
+    cst_fwrite(fd, &numbytes32, sizeof(int), 1);
+    cst_fwrite(fd, data, 1, numbytes32);
 }
 
 /* Write the CG types */
@@ -101,8 +104,14 @@ static void cst_cg_write_tree_nodes(cst_file fd, const cst_cart_node* nodes)
         }
         else if (nodes[i].val->c.a.type == CST_VAL_TYPE_INT)
         {
-            an_int=nodes[i].val->c.a.v.ival;
-            cst_fwrite(fd, &an_int,sizeof(int),1);
+            /* Clamp 64-bit integer to 32-bit range to preserve on-disk format */
+            long long ival = nodes[i].val->c.a.v.ival;
+            if (ival > INT_MAX)
+                ival = INT_MAX;
+            else if (ival < INT_MIN)
+                ival = INT_MIN;
+            an_int = (int)ival;
+            cst_fwrite(fd, &an_int, sizeof(int), 1);
         }
         else if (nodes[i].val->c.a.type == CST_VAL_TYPE_FLOAT)
         {
@@ -149,7 +158,7 @@ static void cst_cg_write_tree_array(cst_file fd, const cst_cart* const * trees)
 }
 
 /* Write a single dimensional array whose total size is "bytesize" */
-static void cst_cg_write_array(cst_file fd, const void* data, int bytesize)
+static void cst_cg_write_array(cst_file fd, const void* data, size_t bytesize)
 {
     cst_cg_write_padded(fd, data, bytesize);
 }
@@ -161,7 +170,7 @@ static void cst_cg_write_2d_array_short(cst_file fd,
                                         int rows, int cols)
 {
     int i;
-    int columnsize = cols*sizeof(unsigned short);
+    size_t columnsize = (size_t)cols * sizeof(unsigned short);
 
     cst_fwrite(fd, &rows, sizeof(int),1);
 
@@ -174,7 +183,7 @@ static void cst_cg_write_2d_array_float(cst_file fd,
                                         int rows, int cols)
 {
     int i;
-    int columnsize = cols*sizeof(float);
+    size_t columnsize = (size_t)cols * sizeof(float);
 
     cst_fwrite(fd, &rows, sizeof(int),1);
 
@@ -187,7 +196,7 @@ static void cst_cg_write_2d_array_double(cst_file fd,
                                         int rows, int cols)
 {
     int i;
-    int columnsize = cols*sizeof(double);
+    size_t columnsize = (size_t)cols * sizeof(double);
 
     cst_fwrite(fd, &rows, sizeof(int),1);
 
@@ -371,8 +380,8 @@ int cst_cg_dump_voice(const cst_voice *v,const cst_string *filename)
                                     db->num_channels_spamf0_accent);
     }
   
-    cst_cg_write_array(fd, db->model_min, sizeof(float)*db->num_channels[0]);
-    cst_cg_write_array(fd, db->model_range, sizeof(float)*db->num_channels[0]);
+    cst_cg_write_array(fd, db->model_min, (size_t)db->num_channels[0] * sizeof(float));
+    cst_cg_write_array(fd, db->model_range, (size_t)db->num_channels[0] * sizeof(float));
 
     if (db->model_shape > CST_CG_MODEL_SHAPE_BASE_MINRANGE)
     {   /* dump the qtable if shape > 1 */
@@ -395,7 +404,7 @@ int cst_cg_dump_voice(const cst_voice *v,const cst_string *filename)
     cst_cg_write_phone_states(fd, db->phone_states);
 
     cst_fwrite(fd,&db->do_mlpg,sizeof(int),1); 
-    cst_cg_write_array(fd, db->dynwin, db->dynwinsize*sizeof(float));
+    cst_cg_write_array(fd, db->dynwin, (size_t)db->dynwinsize * sizeof(float));
     cst_fwrite(fd,&db->dynwinsize,sizeof(int),1); 
   
     cst_fwrite(fd,&db->mlsa_alpha,sizeof(float),1); 
@@ -415,3 +424,4 @@ int cst_cg_dump_voice(const cst_voice *v,const cst_string *filename)
     cst_fclose(fd);
     return 1;
 }
+

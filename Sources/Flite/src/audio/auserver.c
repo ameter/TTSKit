@@ -53,6 +53,8 @@
 #ifdef _MSC_VER
 #include <io.h>
 #define read(fd, buffer, count) _read(fd, buffer, count)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
 #else
 #include <unistd.h>
 #endif
@@ -61,10 +63,12 @@ static int play_wave_from_socket(snd_header *header,int audiostream)
 {
     /* Read audio from stream and play it to audio device, converting */
     /* it to pcm if required                                          */
-    int num_samples;
+    ssize_t num_samples;
+    ssize_t q, r;
+    ssize_t i;
+    int n;
     int sample_width;
     cst_audiodev *audio_device;
-    int q,i,n,r;
     unsigned char bytes[CST_AUDIOBUFFSIZE];
     short shorts[CST_AUDIOBUFFSIZE];
 #ifdef DEBUG
@@ -93,7 +97,7 @@ static int play_wave_from_socket(snd_header *header,int audiostream)
 	if (num_samples > i+CST_AUDIOBUFFSIZE)
 	    n = CST_AUDIOBUFFSIZE;
 	else
-	    n = num_samples-i;
+	    n = (int)(num_samples - i);
 	if (header->encoding == CST_SND_ULAW)
 	{
 	    r = read(audiostream,bytes,n);
@@ -117,7 +121,7 @@ static int play_wave_from_socket(snd_header *header,int audiostream)
 	
 	for (q=r; q > 0; q-=n)
 	{
-	    n = audio_write(audio_device,shorts,q);
+	    n = audio_write(audio_device,shorts,(int)q);
 #ifdef DEBUG
 	    cst_fwrite(fff,shorts,2,q);
 #endif
@@ -141,13 +145,13 @@ static int auserver_process_client(int client_name, int fd)
 {
     /* Gets called for each client */
     snd_header header;
-    int r;
+    ssize_t r;
 
     printf("client %d connected, ",client_name);
     fflush(stdout);
     /* Get header */
     r = read(fd,&header,sizeof(header));
-    if (r != sizeof(header))
+    if (r != (ssize_t)sizeof(header))
     {
 	cst_errmsg("socket: connection didn't give a header\n");
 	return -1;
@@ -185,3 +189,5 @@ int auserver(int port)
 }
 
 #endif
+
+
