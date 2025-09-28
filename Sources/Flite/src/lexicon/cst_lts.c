@@ -38,9 +38,16 @@
 /*                                                                       */
 /*************************************************************************/
 
+#include <limits.h>
+
 #include "cst_features.h"
 #include "cst_lts.h"
 #include "cst_endian.h"
+
+static int clamp_size_to_int(size_t value)
+{
+    return (value > (size_t)INT_MAX) ? INT_MAX : (int)value;
+}
 
 static cst_lts_phone apply_model(cst_lts_letter *vals,
 				 cst_lts_addr start,
@@ -103,15 +110,17 @@ cst_val *lts_apply(const char *word,const char *feats,const cst_lts_rules *r)
     const char *p;
     char hash;
     char zeros[8];
+    size_t word_len = cst_strlen(word);
+    int word_len_i = clamp_size_to_int(word_len);
+    size_t context_twice = (size_t)r->context_window_size * 2;
+    size_t extra_feats = (r->context_extra_feats > 0) ?
+	(size_t)r->context_extra_feats : 0;
     
     /* For feature vals for each letter */
-    fval_buff = cst_alloc(cst_lts_letter,
-			  (r->context_window_size*2)+
-			   r->context_extra_feats);
+    fval_buff = cst_alloc(cst_lts_letter, context_twice + extra_feats);
     /* Buffer with added contexts */
     full_buff = cst_alloc(cst_lts_letter,
-			  (r->context_window_size*2)+
-			  cst_strlen(word)+1); /* TBD assumes single POS feat */
+			  context_twice + word_len + 1); /* TBD assumes single POS feat */
     if (r->letter_table)
     {
 	for (i=0; i<8; i++) zeros[i] = 2;
@@ -136,7 +145,7 @@ cst_val *lts_apply(const char *word,const char *feats,const cst_lts_rules *r)
     }
 
     /* Do the prediction backwards so we don't need to reverse the answer */
-    for (pos = r->context_window_size + cst_strlen(word) - 1;
+    for (pos = r->context_window_size + word_len_i - 1;
 	 full_buff[pos] != hash;
 	 pos--)
     {
@@ -175,11 +184,13 @@ cst_val *lts_apply(const char *word,const char *feats,const cst_lts_rules *r)
 	    continue;
 	else if ((p=strchr(r->phone_table[phone],'-')) != NULL)
 	{
-	    left = cst_substr(r->phone_table[phone],0,
-			      cst_strlen(r->phone_table[phone])-cst_strlen(p));
-	    right = cst_substr(r->phone_table[phone],
-			       (cst_strlen(r->phone_table[phone])-cst_strlen(p))+1,
-			       (cst_strlen(p)-1));
+	    const char *phone_str = r->phone_table[phone];
+	    size_t prefix_len = (size_t)(p - phone_str);
+	    size_t suffix_len = cst_strlen(p + 1);
+	    left = cst_substr(phone_str, 0, clamp_size_to_int(prefix_len));
+	    right = cst_substr(phone_str,
+			 clamp_size_to_int(prefix_len + 1),
+			 clamp_size_to_int(suffix_len));
 	    phones = cons_val(string_val(left),
 			      cons_val(string_val(right),phones));
 	    cst_free(left);

@@ -348,7 +348,10 @@ static cst_val *lex_lookup_addenda(const char *wp,const cst_lexicon *l,
 static int lex_uncompress_word(char *ucword,int max_size,
 			       int p,const cst_lexicon *l)
 {
-    int i,j=0,length;
+    size_t i;
+    size_t j = 0;
+    size_t length;
+    size_t limit = (max_size > 0) ? (size_t)max_size : 0;
     unsigned char *cword;
 
     if (l->entry_hufftable == 0)
@@ -357,12 +360,12 @@ static int lex_uncompress_word(char *ucword,int max_size,
     else
     {
 	cword = &l->data[p];
-	for (i=0,j=0; cword[i]; i++)
+	for (i = 0; cword[i]; i++)
 	{
 	    length = cst_strlen(l->entry_hufftable[cword[i]]);
-	    if (j+length+1<max_size)
+	    if ((j + length + 1) < limit)
 	    {
-		memmove(ucword+j,l->entry_hufftable[cword[i]],length);
+		memmove(ucword + j,l->entry_hufftable[cword[i]],length);
 		j += length;
 	    }
 	    else
@@ -371,7 +374,7 @@ static int lex_uncompress_word(char *ucword,int max_size,
 	ucword[j] = '\0';
     }
 
-    return j;
+    return (int)j;
 }
 static int lex_data_next_entry(const cst_lexicon *l,int p,int end)
 {
@@ -508,5 +511,4 @@ static int lex_match_entry(const char *a, const char *b)
 
     return c;
 }
-
 

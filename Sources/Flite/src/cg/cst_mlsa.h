@@ -110,7 +110,7 @@ static void init_vocoder(double fs, int framel, int m,
 static void vocoder(double p, double *mc, 
                     const float *str,
                     int m, cst_cg_db *cg_db,
-                     VocoderSetup *vs, cst_wave *wav, long *pos);
+                     VocoderSetup *vs, cst_wave *wav, int *pos);
 static double mlsadf(double x, double *b, int m, double a, int pd, double *d,
 		     VocoderSetup *vs);
 static double mlsadf1(double x, double *b, int m, double a, int pd, double *d,

@@ -39,6 +39,7 @@
  * precedence is structured in regular expressions.  Serious changes in
  * regular-expression syntax might require a total rethink.  */
 #include <ctype.h>
+#include <stddef.h>
 #include "cst_alloc.h"
 #include "cst_string.h"
 #include "cst_file.h"
@@ -221,7 +222,7 @@ hs_regcomp(const char *exp)
         cst_regex *r;
 	char *scan;
 	char *longest;
-	unsigned int len;
+	size_t len;
 	int flags;
 	if (exp == NULL)
 		FAIL("NULL argument");
@@ -244,13 +245,13 @@ hs_regcomp(const char *exp)
 
 	/* Allocate space. */
 	r = cst_alloc(cst_regex,1);
-    {
-        size_t count = (size_t)regsize;
-        if (count > (size_t)(INT_MAX / sizeof(char)))
-            FAIL("regexp too big");
-        r->program = (char *)cst_safe_alloc((int)(count * sizeof(char)));
-    }
-	r->regsize = regsize;
+	    {
+	        size_t count = (size_t)regsize;
+	        if (count > (size_t)(INT_MAX / sizeof(char)))
+	            FAIL("regexp too big");
+	        r->program = (char *)cst_safe_alloc(count * sizeof(char));
+	    }
+	r->regsize = (regsize > INT_MAX) ? INT_MAX : (int)regsize;
 	if (r == NULL)
 		FAIL("out of space");
 
@@ -296,7 +297,7 @@ hs_regcomp(const char *exp)
 					len = cst_strlen(OPERAND(scan));
 				}
 			r->regmust = longest;
-			r->regmlen = len;
+			r->regmlen = (len > (size_t)INT_MAX) ? INT_MAX : (int)len;
 		}
 	}
 	return(r);
@@ -740,7 +741,7 @@ regtail(char *p, char *val)
 {
 	char *scan;
 	char *temp;
-	int offset;
+	ptrdiff_t offset;
 
 	if (p == &regdummy)
 		return;
@@ -758,8 +759,11 @@ regtail(char *p, char *val)
 		offset = scan - val;
 	else
 		offset = val - scan;
-	*(scan+1) = (offset>>8)&0377;
-	*(scan+2) = offset&0377;
+	{
+	    unsigned int uoffset = (unsigned int)offset;
+	    *(scan+1) = (char)((uoffset>>8)&0377);
+	    *(scan+2) = (char)(uoffset&0377);
+	}
 }
 
 /*
@@ -947,7 +951,7 @@ regmatch(cst_regstate *state, char *scan)
 			state->input++;
 			break;
 		case EXACTLY: {
-				int len;
+				size_t len;
 				char *opnd;
 
 				opnd = OPERAND(scan);
@@ -1106,7 +1110,7 @@ regmatch(cst_regstate *state, char *scan)
 static int
 regrepeat(cst_regstate *state, char *p)
 {
-	int count = 0;
+	size_t count = 0;
 	const char *scan;
 	char *opnd;
 
@@ -1114,8 +1118,8 @@ regrepeat(cst_regstate *state, char *p)
 	opnd = OPERAND(p);
 	switch (OP(p)) {
 	case ANY:
-		count = cst_strlen(scan);
-		scan += count;
+			count = cst_strlen(scan);
+			scan += count;
 		break;
 	case EXACTLY:
 		while (*opnd == *scan) {
@@ -1142,7 +1146,7 @@ regrepeat(cst_regstate *state, char *p)
 	}
 	state->input = scan;
 
-	return(count);
+		return (count > (size_t)INT_MAX) ? INT_MAX : (int)count;
 }
 
 /*
@@ -1331,4 +1335,3 @@ char *s2;
 	return(count);
 }
 #endif
-

@@ -81,7 +81,8 @@ cst_file cst_url_open(const char *url)
     char *url_request;
     char *path;
     cst_file ofd;
-    int state,n;
+    int state;
+    ssize_t n;
     char c;
 
     urlts = ts_open_string(url, "", ":/", "", "");
@@ -123,10 +124,13 @@ cst_file cst_url_open(const char *url)
                 ts_close(urlts);
                 return NULL;
             }
-            url_request = (char *)cst_safe_alloc((int)(count * sizeof(char)));
+            url_request = (char *)cst_safe_alloc(count * sizeof(char));
         }
         cst_sprintf(url_request,"GET %s HTTP/1.2\n\n",url);
-        n = write(fd, url_request, (int)cst_strlen(url_request));
+        {
+            size_t request_len = cst_strlen(url_request);
+            n = write(fd, url_request, request_len);
+        }
         cst_free(url_request);
 
         /* Skip http header -- until \n\n */
@@ -189,4 +193,3 @@ cst_file cst_url_open(const char *url)
         return NULL;
     }
 }
-

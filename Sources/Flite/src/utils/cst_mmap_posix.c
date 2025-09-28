@@ -121,15 +121,18 @@ cst_filemap *cst_read_whole_file(const char *path)
 
     fmap = cst_alloc(cst_filemap, 1);
     fmap->fd = fd;
-    fmap->mapsize = buf.st_size;
+    fmap->mapsize = (size_t)buf.st_size;
     fmap->mem = cst_alloc(char, fmap->mapsize);
-    if ((int)read(fmap->fd, fmap->mem, fmap->mapsize) < (int)fmap->mapsize)
     {
-	perror("cst_read_whole_file: read() failed");
-	close(fmap->fd);
-	cst_free(fmap->mem);
-	cst_free(fmap);
-	return NULL;
+        ssize_t bytes_read = read(fmap->fd, fmap->mem, fmap->mapsize);
+        if (bytes_read < 0 || (size_t)bytes_read < fmap->mapsize)
+        {
+            perror("cst_read_whole_file: read() failed");
+            close(fmap->fd);
+            cst_free(fmap->mem);
+            cst_free(fmap);
+            return NULL;
+        }
     }
 
     return fmap;

@@ -134,7 +134,7 @@ void delete_val(cst_val *v)
 int val_int(const cst_val *v)
 {
     if (v && (CST_VAL_TYPE(v) == CST_VAL_TYPE_INT))
-	return CST_VAL_INT(v);
+	return (int)CST_VAL_INT(v);
     else if (v && (CST_VAL_TYPE(v) == CST_VAL_TYPE_FLOAT))
 	return (int)CST_VAL_FLOAT(v);
     else if (v && (CST_VAL_TYPE(v) == CST_VAL_TYPE_STRING))
@@ -708,4 +708,3 @@ cst_val *val_readlist_string(const char *str)
 
     return val_reverse(v);
 }
-

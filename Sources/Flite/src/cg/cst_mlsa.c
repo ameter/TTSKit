@@ -114,7 +114,7 @@ static cst_wave *synthesis_body(const cst_track *params, /* f0 + mcep */
                                 cst_audio_streaming_info *asi,
                                 int mlsa_speed_param)
 {
-    long t, pos;
+    int t, pos;
     int framel, i;
     double f0;
     VocoderSetup vs;
@@ -248,7 +248,7 @@ static double plus_or_minus_one()
 static void vocoder(double p, double *mc, 
                     const float *str,
                     int m, cst_cg_db *cg_db,
-                    VocoderSetup *vs, cst_wave *wav, long *pos)
+                    VocoderSetup *vs, cst_wave *wav, int *pos)
 {
     double inc, x, e1, e2;
     int i, j, k; 
@@ -639,4 +639,3 @@ static void free_vocoder(VocoderSetup *vs)
    
     return;
 }
-

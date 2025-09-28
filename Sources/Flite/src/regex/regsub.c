@@ -21,6 +21,8 @@
 /* This is an altered version.  It has been modified by David
    Huggins-Daines <dhd@cepstral.com> on 2001-10-23 to use a different
    API and be re-entrant and safe and all that good stuff. */
+#include <stddef.h>
+
 #include "cst_regex.h"
 #include "cst_string.h"
 #include "cst_error.h"
@@ -29,7 +31,8 @@ size_t cst_regsub(const cst_regstate *state, const char *in, char *out, size_t m
 {
 	const char *src;
 	char *dst;
-	int c, no, len;
+	int c, no;
+	size_t len = 0;
 	size_t count;
 
 	if (state == NULL || in == NULL) {
@@ -56,12 +59,15 @@ size_t cst_regsub(const cst_regstate *state, const char *in, char *out, size_t m
 			if (out)
 				*dst++ = c;
 			count++;
- 		} else if (state->startp[no] != NULL && state->endp[no] != NULL) {
-			len = state->endp[no] - state->startp[no];
-			if (out) {
-				if (dst + len > out + max - 1)
-					len = (out + max - 1) - dst;
-				strncpy(dst, state->startp[no], len);
+	 		} else if (state->startp[no] != NULL && state->endp[no] != NULL) {
+				ptrdiff_t span = state->endp[no] - state->startp[no];
+				len = (span > 0) ? (size_t)span : 0;
+				if (out) {
+					if (dst + len > out + max - 1) {
+						ptrdiff_t avail = (out + max - 1) - dst;
+						len = (avail > 0) ? (size_t)avail : 0;
+					}
+					strncpy(dst, state->startp[no], len);
 				dst += len;
 				/* strncpy hit NUL. */
 				if (len != 0 && *(dst-1) == '\0') {

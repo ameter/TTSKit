@@ -40,6 +40,8 @@
 #ifndef __CST_ALLOC_H__
 #define __CST_ALLOC_H__
 
+#include <stddef.h>
+
 #ifndef TRUE
 #define TRUE (1==1)
 #endif
@@ -48,9 +50,9 @@
 #endif
 
 /* Global allocation (the only kind on Unix) */
-void *cst_safe_alloc(int size);
-void *cst_safe_calloc(int size);
-void *cst_safe_realloc(void *p,int size);
+void *cst_safe_alloc(size_t size);
+void *cst_safe_calloc(size_t size);
+void *cst_safe_realloc(void *p,size_t size);
 
 /* Allocate on local heap (needed on WinCE for various reasons) */
 #ifdef UNDER_CE
@@ -60,7 +62,7 @@ typedef HANDLE cst_alloc_context;
 cst_alloc_context new_alloc_context(int size);
 void delete_alloc_context(cst_alloc_context ctx);
 
-void *cst_local_alloc(cst_alloc_context ctx, int size);
+void *cst_local_alloc(cst_alloc_context ctx, size_t size);
 void cst_local_free(cst_alloc_context ctx, void *p);
 #else /* not UNDER_CE */
 typedef void * cst_alloc_context;

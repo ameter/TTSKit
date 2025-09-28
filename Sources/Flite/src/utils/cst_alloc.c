@@ -66,25 +66,20 @@ void *cst_alloc_cunks[NUM_CHUNKS];
 
 #ifndef CST_USER_MALLOC	/* Define to override cst_safe_alloc, cst_safe_calloc, cst_safe_realloc, cst_free */
 
-void *cst_safe_alloc(int size)
+void *cst_safe_alloc(size_t size)
 {
     /* returns pointer to memory all set 0 */
     void *p = NULL;
-    if (size < 0)
-    {
-	cst_errmsg("alloc: asked for negative size %d\n", size);
-	cst_error();
-    }
-    else if (size == 0)  /* some mallocs return NULL for this */
+    if (size == 0)  /* some mallocs return NULL for this */
 	size++;
 
 #ifdef CST_DEBUG_MALLOC
-    if (size > cst_alloc_imax)
+    if (size > (size_t)cst_alloc_imax)
     {
-	cst_alloc_imax = size;
+	cst_alloc_imax = (int)size;
     }
-    cst_allocated += size;
-    cst_alloc_out += size;
+    cst_allocated += (int)size;
+    cst_alloc_out += (int)size;
     size += 2 * sizeof(int);
 #endif
 
@@ -103,7 +98,7 @@ void *cst_safe_alloc(int size)
     cst_alloc_num_calls++;
     *(int *)p = 1314;
     p = (int *)p + 1;
-    *(int *)p = size - (2 * sizeof(int));
+    *(int *)p = (int)(size - (2 * sizeof(int)));
     if ((cst_allocated - cst_freed) > cst_alloc_max)
 	cst_alloc_max = cst_allocated - cst_freed;
     p = (int *)p + 1;
@@ -111,19 +106,19 @@ void *cst_safe_alloc(int size)
 
     if (p == NULL)
     {
-	cst_errmsg("alloc: can't alloc %d bytes\n", size);
+	cst_errmsg("alloc: can't alloc %zu bytes\n", size);
 	cst_error();
     }
 
     return p;
 }
 
-void *cst_safe_calloc(int size)
+void *cst_safe_calloc(size_t size)
 {
     return cst_safe_alloc(size);
 }
 
-void *cst_safe_realloc(void *p,int size)
+void *cst_safe_realloc(void *p,size_t size)
 {
     void *np=0;
 
@@ -146,7 +141,7 @@ void *cst_safe_realloc(void *p,int size)
 
     if (np == NULL)
     {
-	cst_errmsg("CST_REALLOC failed for %d bytes\n",size);
+	cst_errmsg("CST_REALLOC failed for %zu bytes\n",size);
 	cst_error();
     }
 
@@ -238,7 +233,7 @@ void delete_alloc_context(cst_alloc_context ctx)
     HeapDestroy(h);
 }
 
-void *cst_local_alloc(cst_alloc_context ctx, int size)
+void *cst_local_alloc(cst_alloc_context ctx, size_t size)
 {
     HANDLE h;
 
@@ -260,5 +255,3 @@ void cst_local_free(cst_alloc_context ctx, void *p)
 	LocalFree(p);
 }
 #endif
-
-

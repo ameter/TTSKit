@@ -41,6 +41,7 @@
 /*************************************************************************/
 
 #include <limits.h>
+#include <stddef.h>
 
 #include "cst_hrg.h"
 #include "cst_utt_utils.h"
@@ -658,7 +659,11 @@ int clunit_get_unit_index_name(cst_clunit_db *cludb,
 	return -1;
     }
     idx = atoi(c+1);
-    type = cst_substr(name, 0, c - name);
+    {
+        ptrdiff_t span = c - name;
+        int span_i = (span > (ptrdiff_t)INT_MAX) ? INT_MAX : (int)span;
+        type = cst_substr(name, 0, span_i);
+    }
     i = clunit_get_unit_index(cludb, type, idx);
     cst_free(type);
 

@@ -37,6 +37,8 @@
 /*  Tokenizer for strings and files                                      */
 /*                                                                       */
 /*************************************************************************/
+#include <limits.h>
+
 #include "cst_tokenstream.h"
 
 const cst_string * const cst_ts_default_whitespacesymbols = " \t\n\r";
@@ -343,7 +345,7 @@ int ts_eof(cst_tokenstream *ts)
 int ts_set_stream_pos(cst_tokenstream *ts, int pos)
 {
     /* Note this doesn't preserve line_pos */
-    int new_pos, l;
+    int new_pos;
 
     if (ts->fd)
     {
@@ -353,9 +355,10 @@ int ts_set_stream_pos(cst_tokenstream *ts, int pos)
     }
     else if (ts->string_buffer)
     {
-        l = cst_strlen(ts->string_buffer);
-        if (pos > l)
-            new_pos = l;
+        size_t len = cst_strlen(ts->string_buffer);
+        int len_i = (len > (size_t)INT_MAX) ? INT_MAX : (int)len;
+        if (pos > len_i)
+            new_pos = len_i;
         else if (pos < 0)
             new_pos = 0;
         else
@@ -577,4 +580,3 @@ int ts_read(void *buff, int size, int num, cst_tokenstream *ts)
 
     return i;
 }
-

@@ -159,12 +159,12 @@ int
 g72x_step_size(
 	struct g72x_state *state_ptr)
 {
-	int		y;
-	int		dif;
+	long		y;
+	long		dif;
 	int		al;
 
 	if (state_ptr->ap >= 256)
-		return (state_ptr->yu);
+		return state_ptr->yu;
 	else {
 		y = state_ptr->yl >> 6;
 		dif = state_ptr->yu - y;
@@ -173,7 +173,7 @@ g72x_step_size(
 			y += (dif * al) >> 6;
 		else if (dif < 0)
 			y += (dif * al + 0x3F) >> 6;
-		return (y);
+		return (int)y;
 	}
 }
 

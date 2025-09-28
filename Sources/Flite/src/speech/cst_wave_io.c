@@ -150,7 +150,8 @@ int cst_wave_append_riff(cst_wave *w,const char *filename)
     cst_wave_header hdr;
     char info[4];
     int d_int;
-    int rv, num_bytes, n, sample_rate;
+    int rv, num_bytes, sample_rate;
+    long n;
 
     if ((fd = cst_fopen(filename,CST_OPEN_WRITE|CST_OPEN_READ|CST_OPEN_BINARY)) == NULL)
     {
@@ -246,7 +247,8 @@ int cst_wave_save_riff_fd(cst_wave *w, cst_file fd)
 {
     const char *info;
     short d_short;
-    int d_int, n;
+    int d_int;
+    long n;
     int num_bytes;
 
     info = "RIFF";
@@ -317,7 +319,7 @@ int cst_wave_save_riff_fd(cst_wave *w, cst_file fd)
 		       cst_wave_num_channels(w)*cst_wave_num_samples(w));
     }
 
-    if (n != cst_wave_num_channels(w)*cst_wave_num_samples(w))
+    if (n != (long)cst_wave_num_channels(w)*cst_wave_num_samples(w))
 	return -1;
     else
 	return 0;
@@ -351,15 +353,25 @@ int cst_wave_load_raw_fd(cst_wave *w, cst_file fd,
 
     /* Won't work on pipes, tough luck... */
     size = cst_filesize(fd) / sizeof(short);
-    cst_wave_resize(w, size, 1);
-    if (cst_fread(fd, w->samples, sizeof(short), size) != size)
-	return -1;
+    if (size < 0)
+        size = 0;
+    {
+        int sample_count = (size > INT_MAX) ? INT_MAX : (int)size;
+        long read_samples;
+
+        cst_wave_resize(w, sample_count, 1);
+        read_samples = cst_fread(fd, w->samples, sizeof(short), sample_count);
+        if (read_samples != (long)sample_count)
+            return -1;
+
+        w->num_samples = (int)read_samples;
+    }
 
     w->sample_rate = sample_rate;
     if (bo) /* if it's NULL we don't care */
-	if ((CST_LITTLE_ENDIAN && cst_streq(bo, BYTE_ORDER_BIG))
+        if ((CST_LITTLE_ENDIAN && cst_streq(bo, BYTE_ORDER_BIG))
 	    || (CST_BIG_ENDIAN && cst_streq(bo, BYTE_ORDER_LITTLE)))
-	    swap_bytes_short(w->samples,w->num_samples);
+            swap_bytes_short(w->samples,w->num_samples);
 
     return 0;
 }
@@ -437,7 +449,8 @@ int cst_wave_load_riff_fd(cst_wave *w,cst_file fd)
     cst_wave_header hdr;
     int rv;
     char info[4];
-    int d_int, d;
+    int d_int;
+    long d;
     int data_length;
     int samples;
 
@@ -487,8 +500,8 @@ int cst_wave_load_riff_fd(cst_wave *w,cst_file fd)
     if ((d = cst_fread(fd,w->samples,sizeof(short),data_length)) != data_length)
     {
 	cst_errmsg("cst_wave_load_riff: %d missing samples, resized accordingly\n",
-		   data_length-d);
-	w->num_samples = d;
+		   data_length - (int)d);
+	w->num_samples = (int)d;
     }
 
     if (CST_BIG_ENDIAN)
@@ -496,4 +509,3 @@ int cst_wave_load_riff_fd(cst_wave *w,cst_file fd)
 
     return CST_OK_FORMAT;
 }
-
