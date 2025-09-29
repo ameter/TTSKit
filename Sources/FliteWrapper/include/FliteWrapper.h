@@ -3,7 +3,7 @@
 extern "C" {
 #endif
 
-#include "flite.h"  
+#include "Flite.h"
 
 void flitew_init(void);
 
