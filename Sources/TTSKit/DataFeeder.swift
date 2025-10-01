@@ -16,17 +16,34 @@ final class DataFeeder<Element>: Sendable where Element: Sendable {
     }
     
     convenience init(_ buffer: UnsafePointer<Element>, count: Int) {
-        self.init(Data(bytes: buffer, count: count))
+        let byteCount = count * MemoryLayout<Element>.stride
+        self.init(Data(bytes: UnsafeRawPointer(buffer), count: byteCount))
     }
     
-    func nextChunk(maxCount: UInt32) -> Data.SubSequence? {
-        let sent = sentCount.withLock { $0 }
-        // convert data.count into AVAudioPacketCount
-        // compute remaining: avAudioCount - sent
-        // if remaining is 0, return nil.  else...
-        // set return size to lessor of maxCount or remaining
-        // add return size to sentCount
-        // update sentCount
-        // return a Data subset of sent (previously) through return size, by adjusting size back into bytes
+    func nextChunk(maxCount: Int) -> DataFeeder.Output? {
+        let bytesPerPacket = MemoryLayout<Element>.stride
+        guard bytesPerPacket > 0 else { return nil }
+
+        return sentCount.withLock { sent -> DataFeeder.Output? in
+            let totalPackets = data.count / bytesPerPacket
+            guard sent < totalPackets else { return nil }
+
+            let remainingPackets = totalPackets - sent
+            let requestedPackets = min(maxCount, remainingPackets)
+            guard requestedPackets > 0 else { return nil }
+            let byteOffset = sent * bytesPerPacket
+            let byteCount = requestedPackets * bytesPerPacket
+
+            sent += requestedPackets
+
+            let start = data.index(data.startIndex, offsetBy: byteOffset)
+            let end = data.index(start, offsetBy: byteCount)
+            return DataFeeder.Output(data: data[start..<end], count: requestedPackets)
+        }
+    }
+    
+    struct Output {
+        let data: Data.SubSequence
+        let count: Int
     }
 }

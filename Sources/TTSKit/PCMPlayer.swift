@@ -31,36 +31,26 @@ public final class PCMPlayer {
     ///   - sampleRate: Sample rate in Hz (e.g., 16000).
     @MainActor
     public func playPCM(samples: UnsafePointer<Int16>, count: Int, sampleRate: Int) throws {
-        let srIn = Double(sampleRate)
+        let inSampleRate = Double(sampleRate)
+        
         // Ensure the engine is running before querying negotiated formats
         if !engine.isRunning { try engine.start() }
         
+        // --- Convert Int16 mono @ srIn -> player's negotiated format (Float32 @ srOut, N channels) using AVAudioConverter ---
+        guard let inFormat = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: inSampleRate, channels: 1, interleaved: false) else {
+            throw NSError(domain: "PCMPlayer", code: -6, userInfo: [NSLocalizedDescriptionKey: "Unable to create input AVAudioFormat (Int16)"])
+        }
+        
         // Use the engine's negotiated mixer input format: typically Float32, stereo, 44.1k/48k
         let outFormat = engine.mainMixerNode.inputFormat(forBus: 0)
-        let srOut = outFormat.sampleRate
+        let outSampleRate = outFormat.sampleRate
         let channels = Int(outFormat.channelCount)
         guard channels >= 1, outFormat.commonFormat == .pcmFormatFloat32 else {
             throw NSError(domain: "PCMPlayer", code: -5, userInfo: [NSLocalizedDescriptionKey: "Unsupported output format from player: \(outFormat)"])
         }
         
-        // --- Convert Int16 mono @ srIn -> player's negotiated format (Float32 @ srOut, N channels) using AVAudioConverter ---
-        guard let inFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
-                                           sampleRate: srIn,
-                                           channels: 1,
-                                           interleaved: false) else {
-            throw NSError(domain: "PCMPlayer", code: -6, userInfo: [NSLocalizedDescriptionKey: "Unable to create input AVAudioFormat (Int16)"])
-        }
-        
-        // Wrap source samples in an input buffer
-        let inFrames = AVAudioFrameCount(count)
-        guard let inBuf = AVAudioPCMBuffer(pcmFormat: inFormat, frameCapacity: inFrames) else {
-            throw NSError(domain: "PCMPlayer", code: -7, userInfo: [NSLocalizedDescriptionKey: "Unable to create input AVAudioPCMBuffer"])
-        }
-        inBuf.frameLength = inFrames
-        inBuf.int16ChannelData!.pointee.update(from: samples, count: count)
-        
         // Prepare an output buffer sized for the expected frame count after sample-rate conversion
-        let estimatedOutFrames = AVAudioFrameCount((Double(count) * srOut / srIn).rounded(.toNearestOrEven) + 32)
+        let estimatedOutFrames = AVAudioFrameCount((Double(count) * outSampleRate / inSampleRate).rounded(.toNearestOrEven) + 32)
         guard let outBuf = AVAudioPCMBuffer(pcmFormat: outFormat, frameCapacity: estimatedOutFrames) else {
             throw NSError(domain: "PCMPlayer", code: -8, userInfo: [NSLocalizedDescriptionKey: "Unable to create output AVAudioPCMBuffer"])
         }
@@ -69,53 +59,42 @@ public final class PCMPlayer {
             throw NSError(domain: "PCMPlayer", code: -9, userInfo: [NSLocalizedDescriptionKey: "Unable to create AVAudioConverter"])
         }
         
-        // Debug (optional)
-        // print("in sr:", srIn)
-        // print("out sr:", outFormat.sampleRate, "ch:", outFormat.channelCount, "fmt:", outFormat.commonFormat.rawValue)
-        // print("in frames:", count)
-        
-        // Perform a single-shot conversion (push style) to avoid @Sendable captures
-//        do {
-//            try converter.convert(to: outBuf, from: inBuf)
-//        } catch {
-////        guard status != .error else {
-//            throw NSError(domain: "PCMPlayer", code: -10, userInfo: [NSLocalizedDescriptionKey: "AVAudioConverter reported an error"])
-//        }
-        
-        // Perform conversion using pull-style API; provide input once
-//        var didFeed = false
-        
-
-
-        
-        let fed = UnsafeMutablePointer<Bool>.allocate(capacity: 1)
-        fed.initialize(to: false)
-        defer { fed.deinitialize(count: 1); fed.deallocate() }
+        let dataFeeder = DataFeeder(samples, count: count)
         
         var convError: NSError?
-        let status = converter.convert(to: outBuf, error: &convError) { _, outStatus in
-            if fed.pointee {
-                outStatus.pointee = .endOfStream
+        let convStatus = converter.convert(to: outBuf, error: &convError) { packetCount, status in
+            guard let chunk = dataFeeder.nextChunk(maxCount: Int(packetCount)) else {
+                status.pointee = .endOfStream
                 return nil
             }
-            fed.pointee = true
             
             // Build the input buffer *inside* the closure (no capture of AVAudioPCMBuffer)
-            guard let inFmt = AVAudioFormat(commonFormat: .pcmFormatInt16,
-                                            sampleRate: srIn,
-                                            channels: 1,
-                                            interleaved: false),
-                  let ib = AVAudioPCMBuffer(pcmFormat: inFmt, frameCapacity: AVAudioFrameCount(count)) else {
-                outStatus.pointee = .noDataNow
+            guard let inBuffer = AVAudioPCMBuffer(pcmFormat: inFormat, frameCapacity: UInt32(chunk.count)) else {
+                status.pointee = .endOfStream
                 return nil
             }
-            ib.frameLength = AVAudioFrameCount(count)
-            ib.int16ChannelData!.pointee.update(from: samples, count: count)
-            outStatus.pointee = .haveData
-            return ib
+            
+            chunk.data.withUnsafeBytes { ptr in
+                guard let src = ptr.bindMemory(to: Int16.self).baseAddress else {
+                    inBuffer.frameLength = 0
+                    return
+                }
+                
+                inBuffer.int16ChannelData?.pointee.update(from: src, count: chunk.count)
+                inBuffer.frameLength = AVAudioFrameCount(chunk.count)
+            }
+            
+            guard inBuffer.frameLength > 0 else {
+                status.pointee = .endOfStream
+                return nil
+            }
+            
+            status.pointee = .haveData
+            return inBuffer
         }
+        
         if let convError { throw convError }
-        guard status != .error else {
+        guard convStatus != .error else {
             throw NSError(domain: "PCMPlayer", code: -10, userInfo: [NSLocalizedDescriptionKey: "AVAudioConverter reported an error"])
         }
         
