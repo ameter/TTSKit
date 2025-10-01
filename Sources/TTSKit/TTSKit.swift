@@ -21,7 +21,6 @@ public class TTSKit {
     public func loadVoice(at url: URL) throws {
         guard let path = url.path.cString(using: .utf8),
               let v = flitew_voice_load(path) else { throw TTSKitError.unknownVoice }
-        _ = v // use or cache
         
         flitew_add_voice(v)
         
