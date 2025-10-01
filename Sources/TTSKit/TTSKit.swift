@@ -43,7 +43,6 @@ public class TTSKit {
     //        }
     //    }
     
-    @MainActor
     public func speak(text: String) throws {
         var samplesPtr: UnsafeMutablePointer<Int16>? = nil
         var count: Int32 = 0

@@ -7,7 +7,7 @@
 
 import AVFoundation
 
-public final class PCMPlayer {
+final class PCMPlayer {
     private let engine = AVAudioEngine()
     private let player = AVAudioPlayerNode()
     
@@ -29,7 +29,6 @@ public final class PCMPlayer {
     ///   - samples: Pointer to interleaved mono Int16 PCM samples.
     ///   - count: Number of Int16 samples.
     ///   - sampleRate: Sample rate in Hz (e.g., 16000).
-    @MainActor
     public func playPCM(samples: UnsafePointer<Int16>, count: Int, sampleRate: Int) throws {
         let inSampleRate = Double(sampleRate)
         
