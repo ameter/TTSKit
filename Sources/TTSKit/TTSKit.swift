@@ -49,14 +49,4 @@ public class TTSKit {
         
         try player.playPCM(samples: samples, count: Int(count), sampleRate: Int(rate))
     }
-    
-    //    func listVoices() {
-    //        var v = flite_voice_list
-    //        while v != nil {
-    //            if let car = val_car(v), let name = val_string(car) {
-    //                print("Voice: \(String(cString: name))")
-    //            }
-    //            v = val_cdr(v)
-    //        }
-    //    }
 }
