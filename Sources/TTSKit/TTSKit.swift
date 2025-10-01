@@ -5,7 +5,6 @@
 //  Created by Chris Ameter on 8/24/25.
 //
 
-@preconcurrency import Flite
 import FliteWrapper
 import Foundation
 
@@ -15,16 +14,16 @@ public class TTSKit {
     private var player = PCMPlayer()
     
     public init() {
-        flite_init()
+        flitew_init()
         flitew_register_eng_lang()
     }
     
     public func loadVoice(at url: URL) throws {
         guard let path = url.path.cString(using: .utf8),
-              let v = flite_voice_load(path) else { throw TTSKitError.unknownVoice }
+              let v = flitew_voice_load(path) else { throw TTSKitError.unknownVoice }
         _ = v // use or cache
         
-        flite_add_voice(v)
+        flitew_add_voice(v)
         
         voice = v
         

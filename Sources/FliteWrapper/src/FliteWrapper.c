@@ -1,5 +1,9 @@
 #include "Flite.h"
 
+void flitew_init(void) {
+    flite_init();
+}
+
 extern cst_val *flite_voice_list;
 
 void flitew_register_voices() {
@@ -29,6 +33,16 @@ extern cst_lexicon *cmulex_init(void);
 void flitew_register_eng_lang(void) {
     // Make the "eng" language+lexicon available to flite_voice_load(...)
     flite_add_lang("eng", usenglish_init, cmulex_init);
+}
+
+cst_voice *flitew_voice_load(const char *path) {
+    if (!path) return NULL;
+    return flite_voice_load(path);
+}
+
+void flitew_add_voice(cst_voice *voice) {
+    if (!voice) return;
+    flite_add_voice(voice);
 }
 
 /// Synthesize `text` with `voice` and return 16-bit mono PCM via malloc.

@@ -11,6 +11,10 @@ void flitew_print_voices(void);
 
 void flitew_register_eng_lang(void);
 
+cst_voice *flitew_voice_load(const char *path);
+
+void flitew_add_voice(cst_voice *voice);
+
 int flitew_text_to_pcm(const char *text,
                        cst_voice *voice,
                        short **out_samples,

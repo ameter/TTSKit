@@ -28,7 +28,7 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "TTSKit",
-            dependencies: ["Flite", "FliteWrapper"],
+            dependencies: ["FliteWrapper"],
         ),
         .target(
             name: "FliteWrapper",
