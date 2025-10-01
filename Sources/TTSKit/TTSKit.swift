@@ -1,5 +1,9 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+//
+//  TTSKit.swift
+//  TTSKit
+//
+//  Created by Chris Ameter on 8/24/25.
+//
 
 @preconcurrency import Flite
 import FliteWrapper
@@ -29,20 +33,6 @@ public class TTSKit {
         flitew_print_voices()
     }
     
-    //    public func speak(text: String) throws {
-    //
-    //        guard let voice = voice else { throw TTSKitError.unknownVoice }
-    //        //        flite_register_cmu_us_rms();
-    //
-    //        //        fitew_print_voices()
-    //
-    //        //        guard let v = flite_voice_select("cmu_us_clb") else { throw TTSKitError.unknownVoice }
-    //
-    //        _ = text.utf8CString.withUnsafeBufferPointer { buffer in
-    //            flite_text_to_speech(buffer.baseAddress, voice, "wav")
-    //        }
-    //    }
-    
     public func speak(text: String) throws {
         var samplesPtr: UnsafeMutablePointer<Int16>? = nil
         var count: Int32 = 0
@@ -60,7 +50,6 @@ public class TTSKit {
         try player.playPCM(samples: samples, count: Int(count), sampleRate: Int(rate))
     }
     
-    //    @MainActor
     //    func listVoices() {
     //        var v = flite_voice_list
     //        while v != nil {
