@@ -1,4 +1,5 @@
 #include "Flite.h"
+#include <string.h>
 
 void flitew_init(void) {
     flite_init();
@@ -42,6 +43,25 @@ cst_voice *flitew_voice_load(const char *path) {
 
 void flitew_add_voice(cst_voice *voice) {
     if (!voice) return;
+
+    const char *incoming_name = (voice->features) ? feat_string(voice->features, "name") : NULL;
+
+    for (const cst_val *it = flite_voice_list; it; it = val_cdr(it)) {
+        const cst_val *node = val_car(it);
+        cst_voice *existing = val_voice(node);
+        if (!existing) continue;
+
+        const char *existing_name = (existing->features) ? feat_string(existing->features, "name") : NULL;
+
+        if (incoming_name && existing_name && strcmp(incoming_name, existing_name) == 0) {
+            return;
+        }
+
+        if (!incoming_name && existing == voice) {
+            return;
+        }
+    }
+
     flite_add_voice(voice);
 }
 
