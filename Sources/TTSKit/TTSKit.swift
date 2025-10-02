@@ -9,8 +9,7 @@ import FliteWrapper
 import Foundation
 
 public class TTSKit {
-    public var voice: UnsafeMutablePointer<cst_voice>?
-    
+    private var voice: UnsafeMutablePointer<cst_voice>?
     private var player = PCMPlayer()
     
     public init() {
@@ -18,28 +17,37 @@ public class TTSKit {
         flitew_register_eng_lang()
     }
     
+    public enum TTSVoice: String {
+        case cmuUsKal = "cmu_us_kal"
+        case cmuUsKal16 = "cmu_us_kal16"
+        case cmuUsRms = "cmu_us_rms"
+        case cmuUsSlt = "cmu_us_slt"
+    }
+    
+    public func loadVoice(_ voice: TTSVoice) {
+        // TODO Load Builtin voice
+    }
+    
     public func loadVoice(at url: URL) throws {
         guard let path = url.path.cString(using: .utf8),
-              let v = flitew_voice_load(path) else { throw TTSKitError.unknownVoice }
+              let loadedVoice = flitew_voice_load(path) else {
+            throw TTSKitError.unknownVoice
+        }
         
-        flitew_add_voice(v)
-        
-        voice = v
-        
-        guard let _ = voice else { throw TTSKitError.unknownVoice }
-        
-        flitew_print_voices()
+        voice = loadedVoice
     }
     
     public func speak(text: String) throws {
         var samplesPtr: UnsafeMutablePointer<Int16>? = nil
         var count: Int32 = 0
         var rate: Int32 = 0
-        
-        guard let v = voice else { throw TTSKitError.unknownVoice }
+                
+        if voice == nil {
+            loadVoice(.cmuUsSlt)
+        }
         
         let err = text.withCString { cstr in
-            flitew_text_to_pcm(cstr, v, &samplesPtr, &count, &rate)
+            flitew_text_to_pcm(cstr, voice, &samplesPtr, &count, &rate)
         }
         guard err == 0, let samples = samplesPtr, count > 0, rate > 0 else {
             throw NSError(domain: "TTSKit", code: Int(err), userInfo: [NSLocalizedDescriptionKey: "flitew_text_to_pcm failed (\(err))"]) }
