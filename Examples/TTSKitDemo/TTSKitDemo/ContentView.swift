@@ -7,7 +7,6 @@
 
 import SwiftUI
 import TTSKit
-import TTSVoice
 
 struct ContentView: View {
     let tts = TTSKit()
@@ -26,10 +25,10 @@ struct ContentView: View {
     
     private func speak() {
                         
-        guard let url = TTSVoice.caleb.url() else { fatalError("invalid URL") }
+//        guard let url = TTSVoice.caleb.url() else { fatalError("invalid URL") }
 
         do {
-            try tts.loadVoice(at: url)
+//            try tts.loadVoice(at: url)
             try tts.speak(text: "Hello, World!")
             
         } catch {

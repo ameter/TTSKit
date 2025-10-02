@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		834EDEC12E5A7547007CC46B /* TTSVoice in Frameworks */ = {isa = PBXBuildFile; productRef = 834EDEC02E5A7547007CC46B /* TTSVoice */; };
 		838AFC0E2E58300A00E54B10 /* TTSKit in Frameworks */ = {isa = PBXBuildFile; productRef = 838AFC0D2E58300A00E54B10 /* TTSKit */; };
 		83BB49012E58C3DC00C4C024 /* TTSKit in Frameworks */ = {isa = PBXBuildFile; productRef = 83BB49002E58C3DC00C4C024 /* TTSKit */; };
 /* End PBXBuildFile section */
@@ -29,7 +28,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				834EDEC12E5A7547007CC46B /* TTSVoice in Frameworks */,
 				838AFC0E2E58300A00E54B10 /* TTSKit in Frameworks */,
 				83BB49012E58C3DC00C4C024 /* TTSKit in Frameworks */,
 			);
@@ -84,7 +82,6 @@
 			packageProductDependencies = (
 				838AFC0D2E58300A00E54B10 /* TTSKit */,
 				83BB49002E58C3DC00C4C024 /* TTSKit */,
-				834EDEC02E5A7547007CC46B /* TTSVoice */,
 			);
 			productName = TTSKitDemo;
 			productReference = 838AFBFE2E582F9B00E54B10 /* TTSKitDemo.app */;
@@ -383,10 +380,6 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		834EDEC02E5A7547007CC46B /* TTSVoice */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = TTSVoice;
-		};
 		838AFC0D2E58300A00E54B10 /* TTSKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TTSKit;

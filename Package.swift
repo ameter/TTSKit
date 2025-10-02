@@ -19,8 +19,8 @@ let package = Package(
             targets: ["TTSKit"]
         ),
         .library(
-            name: "TTSVoice",
-            targets: ["TTSVoice"]
+            name: "TTSVoiceLibrary",
+            targets: ["TTSVoiceLibrary"]
         ),
     ],
     targets: [
@@ -48,13 +48,22 @@ let package = Package(
             ]
         ),
         .target(
-            name: "TTSVoice",
-            path: "Voices/TTSVoice",
-            resources: [.copy("cmu_us_clb.flitevox")]
+            name: "TTSVoiceLibrary",
+            dependencies: ["TTSKit"],
+            path: "Voices/TTSVoiceLibrary",
+            resources: [.copy("cmu_us_clb.flitevox")],
         ),
         .testTarget(
             name: "TTSKitTests",
-            dependencies: ["TTSKit", "TTSVoice", "FliteWrapper"]
+            dependencies: ["TTSKit"]
+        ),
+        .testTarget(
+            name: "FliteWrapperTests",
+            dependencies: ["FliteWrapper"]
+        ),
+        .testTarget(
+            name: "TTSVoiceLibraryTests",
+            dependencies: ["TTSVoiceLibrary"]
         ),
     ]
 )
