@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		838AFC0E2E58300A00E54B10 /* TTSKit in Frameworks */ = {isa = PBXBuildFile; productRef = 838AFC0D2E58300A00E54B10 /* TTSKit */; };
 		83BB49012E58C3DC00C4C024 /* TTSKit in Frameworks */ = {isa = PBXBuildFile; productRef = 83BB49002E58C3DC00C4C024 /* TTSKit */; };
+		83D119B42E8F16B80067C240 /* TTSVoiceLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = 83D119B32E8F16B80067C240 /* TTSVoiceLibrary */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				83D119B42E8F16B80067C240 /* TTSVoiceLibrary in Frameworks */,
 				838AFC0E2E58300A00E54B10 /* TTSKit in Frameworks */,
 				83BB49012E58C3DC00C4C024 /* TTSKit in Frameworks */,
 			);
@@ -82,6 +84,7 @@
 			packageProductDependencies = (
 				838AFC0D2E58300A00E54B10 /* TTSKit */,
 				83BB49002E58C3DC00C4C024 /* TTSKit */,
+				83D119B32E8F16B80067C240 /* TTSVoiceLibrary */,
 			);
 			productName = TTSKitDemo;
 			productReference = 838AFBFE2E582F9B00E54B10 /* TTSKitDemo.app */;
@@ -387,6 +390,10 @@
 		83BB49002E58C3DC00C4C024 /* TTSKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TTSKit;
+		};
+		83D119B32E8F16B80067C240 /* TTSVoiceLibrary */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TTSVoiceLibrary;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

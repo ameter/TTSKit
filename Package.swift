@@ -51,7 +51,22 @@ let package = Package(
             name: "TTSVoiceLibrary",
             dependencies: ["TTSKit"],
             path: "Voices/TTSVoiceLibrary",
-            resources: [.copy("cmu_us_clb.flitevox")],
+            resources: [
+                .copy("cmu_us_aew.flitevox"),
+                .copy("cmu_us_awb.flitevox"),
+                .copy("cmu_us_axb.flitevox"),
+                .copy("cmu_us_aup.flitevox"),
+                .copy("cmu_us_bdl.flitevox"),
+                .copy("cmu_us_eey.flitevox"),
+                .copy("cmu_us_fem.flitevox"),
+                .copy("cmu_us_gka.flitevox"),
+                .copy("cmu_us_jmk.flitevox"),
+                .copy("cmu_us_ksp.flitevox"),
+                .copy("cmu_us_ljm.flitevox"),
+                .copy("cmu_us_rms.flitevox"),
+                .copy("cmu_us_rxr.flitevox"),
+                .copy("cmu_us_slt.flitevox")
+            ],
         ),
         .testTarget(
             name: "TTSKitTests",
@@ -67,4 +82,3 @@ let package = Package(
         ),
     ]
 )
-
