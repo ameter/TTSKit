@@ -8,7 +8,6 @@ import Foundation
 import TTSKit
 
 public enum TTSVoiceLibrary: String {
-    case caleb = "cmu_us_rms"
     case cmuUsAew = "cmu_us_aew"
     case cmuUsAwb = "cmu_us_awb"
     case cmuUsAxb = "cmu_us_axb"
@@ -20,6 +19,7 @@ public enum TTSVoiceLibrary: String {
     case cmuUsJmk = "cmu_us_jmk"
     case cmuUsKsp = "cmu_us_ksp"
     case cmuUsLjm = "cmu_us_ljm"
+    case cmuUsRms = "cmu_us_rms"
     case cmuUsRxr = "cmu_us_rxr"
     case cmuUsSlt = "cmu_us_slt"
 }
