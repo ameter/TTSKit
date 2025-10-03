@@ -17,8 +17,8 @@ struct ContentView: View {
         }
         .padding()
         .task {
-            // sleep for 0.2 seconds to allow time for the app to finish loading
-            try? await Task.sleep(for: .milliseconds(200))
+            // sleep for 0.25 seconds to allow time for the app to finish loading
+            try? await Task.sleep(for: .milliseconds(250))
             speak()
         }
     }
@@ -26,7 +26,7 @@ struct ContentView: View {
     private func speak() {
                         
 //        guard let url = TTSVoice.caleb.url() else { fatalError("invalid URL") }
-        //            tts.loadVoice(.cmuUsRms)
+        tts.loadVoice(.female)
         
         do {
 

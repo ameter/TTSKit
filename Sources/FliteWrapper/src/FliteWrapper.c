@@ -30,8 +30,6 @@ void flitew_print_voices(void) {
 
 extern void usenglish_init(cst_voice *v);
 extern cst_lexicon *cmulex_init(void);
-extern cst_voice *register_cmu_us_kal(const char *voxdir);
-extern cst_voice *register_cmu_us_kal16(const char *voxdir);
 extern cst_voice *register_cmu_us_rms(const char *voxdir);
 extern cst_voice *register_cmu_us_slt(const char *voxdir);
 
@@ -67,14 +65,6 @@ void flitew_add_voice(cst_voice *voice) {
     }
 
     flite_add_voice(voice);
-}
-
-cst_voice *flitew_register_cmu_us_kal(void) {
-    return register_cmu_us_kal(NULL);
-}
-
-cst_voice *flitew_register_cmu_us_kal16(void) {
-    return register_cmu_us_kal16(NULL);
 }
 
 cst_voice *flitew_register_cmu_us_rms(void) {

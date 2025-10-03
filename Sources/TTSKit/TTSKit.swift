@@ -17,23 +17,17 @@ public class TTSKit {
         flitew_register_eng_lang()
     }
     
-    public enum TTSVoice: String {
-        case cmuUsKal = "cmu_us_kal"
-        case cmuUsKal16 = "cmu_us_kal16"
-        case cmuUsRms = "cmu_us_rms"
-        case cmuUsSlt = "cmu_us_slt"
+    public enum TTSBuiltinVoice {
+        case male       // cmu_us_rms
+        case female     // cmu_us_slt
     }
     
-    public func loadVoice(_ ttsVoice: TTSVoice) {
+    public func loadVoice(_ ttsBuiltinVoice: TTSBuiltinVoice) {
         let builtin: UnsafeMutablePointer<cst_voice>? = {
-            switch ttsVoice {
-            case .cmuUsKal:
-                return flitew_register_cmu_us_kal()
-            case .cmuUsKal16:
-                return flitew_register_cmu_us_kal16()
-            case .cmuUsRms:
+            switch ttsBuiltinVoice {
+            case .male:
                 return flitew_register_cmu_us_rms()
-            case .cmuUsSlt:
+            case .female:
                 return flitew_register_cmu_us_slt()
             }
         }()
@@ -61,7 +55,7 @@ public class TTSKit {
         var rate: Int32 = 0
         
         if voice == nil {
-            loadVoice(.cmuUsSlt)
+            loadVoice(.female)
         }
         
         let err = text.withCString { cstr in
