@@ -26,9 +26,10 @@ struct ContentView: View {
     private func speak() {
                         
 //        guard let url = TTSVoice.caleb.url() else { fatalError("invalid URL") }
-
+        //            tts.loadVoice(.cmuUsRms)
+        
         do {
-//            try tts.loadVoice(at: url)
+
             try tts.speak(text: "Hello, World!")
             
         } catch {

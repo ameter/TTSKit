@@ -54,6 +54,12 @@ cst_voice *flitew_voice_load(const char *path);
 ///   constructor. Passing `NULL` is ignored.
 void flitew_add_voice(cst_voice *voice);
 
+/// Register and return built-in CMU voices linked into the binary.
+cst_voice *flitew_register_cmu_us_kal(void);
+cst_voice *flitew_register_cmu_us_kal16(void);
+cst_voice *flitew_register_cmu_us_rms(void);
+cst_voice *flitew_register_cmu_us_slt(void);
+
 /// Synthesize text to mono 16-bit PCM using `flite_text_to_wave`.
 ///
 /// Internally performs a blocking synthesis, copies the resulting `cst_wave`

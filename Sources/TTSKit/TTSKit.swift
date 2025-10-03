@@ -24,8 +24,26 @@ public class TTSKit {
         case cmuUsSlt = "cmu_us_slt"
     }
     
-    public func loadVoice(_ voice: TTSVoice) {
-        // TODO Load Builtin voice
+    public func loadVoice(_ ttsVoice: TTSVoice) {
+        let builtin: UnsafeMutablePointer<cst_voice>? = {
+            switch ttsVoice {
+            case .cmuUsKal:
+                return flitew_register_cmu_us_kal()
+            case .cmuUsKal16:
+                return flitew_register_cmu_us_kal16()
+            case .cmuUsRms:
+                return flitew_register_cmu_us_rms()
+            case .cmuUsSlt:
+                return flitew_register_cmu_us_slt()
+            }
+        }()
+        
+        guard let resolvedVoice = builtin else {
+            voice = nil
+            return
+        }
+        
+        voice = resolvedVoice
     }
     
     public func loadVoice(at url: URL) throws {
@@ -41,7 +59,7 @@ public class TTSKit {
         var samplesPtr: UnsafeMutablePointer<Int16>? = nil
         var count: Int32 = 0
         var rate: Int32 = 0
-                
+        
         if voice == nil {
             loadVoice(.cmuUsSlt)
         }
