@@ -42,21 +42,7 @@ void flitew_register_eng_lang(void);
 ///   cannot be opened, parsed, or validated.
 cst_voice *flitew_voice_load(const char *path);
 
-/// Register a voice in Flite's global registry (`flite_add_voice`).
-///
-/// The global registry enables lookups by symbolic name (`flite_voice_select`)
-/// and populates `flite_voice_list`. Flite's own guidance is to add voices up
-/// front—before concurrent synthesis begins—because the registry is not designed
-/// for multi-threaded mutation. This wrapper first scans the existing registry
-/// and skips insertion when a voice with the same `name` feature is already
-/// present (falling back to pointer comparison only if the name is absent).
-/// - Parameter voice: Voice pointer produced by `flitew_voice_load` or another
-///   constructor. Passing `NULL` is ignored.
-void flitew_add_voice(cst_voice *voice);
-
 /// Register and return built-in CMU voices linked into the binary.
-cst_voice *flitew_register_cmu_us_kal(void);
-cst_voice *flitew_register_cmu_us_kal16(void);
 cst_voice *flitew_register_cmu_us_rms(void);
 cst_voice *flitew_register_cmu_us_slt(void);
 
