@@ -14,26 +14,28 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            Button("Speak", action: speak)
+//            Button("Speak", action: speak)
         }
         .padding()
         .task {
             // sleep for 0.25 seconds to allow time for the app to finish loading
             try? await Task.sleep(for: .milliseconds(250))
-            speak()
+            await speak()
         }
     }
     
-    private func speak() {
+    private func speak() async {
                         
 //        guard let url = TTSVoice.caleb.url() else { fatalError("invalid URL") }
 //        tts.loadVoice(.female)
         
         do {
             try tts.loadVoice(fromLibrary: .cmuUsEey)
-            tts.settings.duration = 1.5
+            tts.settings.pitchMean = 1000
             try tts.speak(text: "Hello, World!")
-            
+            try? await Task.sleep(for: .milliseconds(2000))
+            tts.settings.pitchMean = nil
+            try tts.speak(text: "Hello, World!")
         } catch {
             print("Error speaking: \(error)")
         }

@@ -58,6 +58,22 @@ void flitew_voice_clear_feature(cst_voice *voice, const char *name) {
     feat_remove(voice->features, name);
 }
 
+void flitew_voice_clear_duration_stretch(cst_voice *voice) {
+    flitew_voice_clear_feature(voice, "duration_stretch");
+}
+
+void flitew_voice_clear_f0_shift(cst_voice *voice) {
+    flitew_voice_clear_feature(voice, "f0_shift");
+}
+
+void flitew_voice_clear_f0_target_mean(cst_voice *voice) {
+    flitew_voice_clear_feature(voice, "int_f0_target_mean");
+}
+
+void flitew_voice_clear_f0_target_stddev(cst_voice *voice) {
+    flitew_voice_clear_feature(voice, "int_f0_target_stddev");
+}
+
 /// Synthesize `text` with `voice` and return 16-bit mono PCM via malloc.
 /// On success returns 0 and fills out pointers. Call `flitew_free_pcm` to free.
 int flitew_text_to_pcm(const char *text,

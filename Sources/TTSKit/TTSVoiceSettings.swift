@@ -60,7 +60,7 @@ public class TTSVoiceSettings {
         if let duration {
             flitew_voice_set_duration_stretch(voice, duration)
         } else {
-            flitew_voice_clear_feature(voice, "duration_stretch")
+            flitew_voice_clear_duration_stretch(voice)
         }
     }
     
@@ -69,7 +69,7 @@ public class TTSVoiceSettings {
         if let shift {
             flitew_voice_set_f0_shift(voice, shift)
         } else {
-            flitew_voice_clear_feature(voice, "f0_shift")
+            flitew_voice_clear_f0_shift(voice)
         }
     }
     
@@ -78,7 +78,7 @@ public class TTSVoiceSettings {
         if let pitchMean {
             flitew_voice_set_f0_target_mean(voice, pitchMean)
         } else {
-            flitew_voice_clear_feature(voice, "int_f0_target_mean")
+            flitew_voice_clear_f0_target_mean(voice)
         }
     }
     
@@ -87,7 +87,7 @@ public class TTSVoiceSettings {
         if let pitchStdDeviation {
             flitew_voice_set_f0_target_stddev(voice, pitchStdDeviation)
         } else {
-            flitew_voice_clear_feature(voice, "int_f0_target_stddev")
+            flitew_voice_clear_f0_target_stddev(voice)
         }
     }
 }
