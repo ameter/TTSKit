@@ -58,7 +58,7 @@ public class TTSVoiceSettings {
     private func setDuration() {
         guard let voice else { return }
         if let duration {
-            flitew_voice_set_float_feature(voice, "duration_stretch", duration)
+            flitew_voice_set_duration_stretch(voice, duration)
         } else {
             flitew_voice_clear_feature(voice, "duration_stretch")
         }
@@ -67,7 +67,7 @@ public class TTSVoiceSettings {
     private func setShift() {
         guard let voice else { return }
         if let shift {
-            flitew_voice_set_float_feature(voice, "f0_shift", shift)
+            flitew_voice_set_f0_shift(voice, shift)
         } else {
             flitew_voice_clear_feature(voice, "f0_shift")
         }
@@ -76,7 +76,7 @@ public class TTSVoiceSettings {
     private func setPitchMean() {
         guard let voice else { return }
         if let pitchMean {
-            flitew_voice_set_float_feature(voice,"int_f0_target_mean", pitchMean)
+            flitew_voice_set_f0_target_mean(voice, pitchMean)
         } else {
             flitew_voice_clear_feature(voice, "int_f0_target_mean")
         }
@@ -85,7 +85,7 @@ public class TTSVoiceSettings {
     private func setPitchStdDeviation() {
         guard let voice else { return }
         if let pitchStdDeviation {
-            flitew_voice_set_float_feature(voice, "int_f0_target_stddev", pitchStdDeviation)
+            flitew_voice_set_f0_target_stddev(voice, pitchStdDeviation)
         } else {
             flitew_voice_clear_feature(voice, "int_f0_target_stddev")
         }

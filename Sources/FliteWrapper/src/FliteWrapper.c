@@ -29,9 +29,28 @@ cst_voice *flitew_register_cmu_us_slt(void) {
     return register_cmu_us_slt(NULL);
 }
 
-void flitew_voice_set_float_feature(cst_voice *voice, const char *name, float value) {
-    if (!voice || !voice->features || !name) return;
-    feat_set_float(voice->features, name, value);
+void flitew_voice_set_duration_stretch(cst_voice *voice, float value) {
+    if (!voice || !voice->features) return;
+    static const char key[] = "duration_stretch";
+    feat_set_float(voice->features, key, value);
+}
+
+void flitew_voice_set_f0_shift(cst_voice *voice, float value) {
+    if (!voice || !voice->features) return;
+    static const char key[] = "f0_shift";
+    feat_set_float(voice->features, key, value);
+}
+
+void flitew_voice_set_f0_target_mean(cst_voice *voice, float value) {
+    if (!voice || !voice->features) return;
+    static const char key[] = "int_f0_target_mean";
+    feat_set_float(voice->features, key, value);
+}
+
+void flitew_voice_set_f0_target_stddev(cst_voice *voice, float value) {
+    if (!voice || !voice->features) return;
+    static const char key[] = "int_f0_target_stddev";
+    feat_set_float(voice->features, key, value);
 }
 
 void flitew_voice_clear_feature(cst_voice *voice, const char *name) {

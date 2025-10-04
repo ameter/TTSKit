@@ -31,7 +31,7 @@ struct ContentView: View {
         
         do {
             try tts.loadVoice(fromLibrary: .cmuUsEey)
-            tts.settings.duration = 0.2
+            tts.settings.duration = 1.5
             try tts.speak(text: "Hello, World!")
             
         } catch {

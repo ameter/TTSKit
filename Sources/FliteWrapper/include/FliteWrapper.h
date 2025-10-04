@@ -47,7 +47,10 @@ cst_voice *flitew_register_cmu_us_rms(void);
 cst_voice *flitew_register_cmu_us_slt(void);
 
 /// Read/write helpers for voice-level float features.
-void flitew_voice_set_float_feature(cst_voice *voice, const char *name, float value);
+void flitew_voice_set_duration_stretch(cst_voice *voice, float value);
+void flitew_voice_set_f0_shift(cst_voice *voice, float value);
+void flitew_voice_set_f0_target_mean(cst_voice *voice, float value);
+void flitew_voice_set_f0_target_stddev(cst_voice *voice, float value);
 void flitew_voice_clear_feature(cst_voice *voice, const char *name);
 
 /// Synthesize text to mono 16-bit PCM using `flite_text_to_wave`.
