@@ -39,6 +39,10 @@ void flitew_voice_set_float_feature(cst_voice *voice, const char *name, float va
     feat_set_float(voice->features, name, value);
 }
 
+void flitew_voice_clear_feature(cst_voice *voice, const char *name) {
+    if (!voice || !voice->features || !name) return;
+    feat_remove(voice->features, name);
+}
 
 /// Synthesize `text` with `voice` and return 16-bit mono PCM via malloc.
 /// On success returns 0 and fills out pointers. Call `flitew_free_pcm` to free.
