@@ -46,6 +46,10 @@ cst_voice *flitew_voice_load(const char *path);
 cst_voice *flitew_register_cmu_us_rms(void);
 cst_voice *flitew_register_cmu_us_slt(void);
 
+/// Read/write helpers for voice-level float features.
+float flitew_voice_get_float_feature(const cst_voice *voice, const char *name);
+void flitew_voice_set_float_feature(cst_voice *voice, const char *name, float value);
+
 /// Synthesize text to mono 16-bit PCM using `flite_text_to_wave`.
 ///
 /// Internally performs a blocking synthesis, copies the resulting `cst_wave`

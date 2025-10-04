@@ -1,37 +1,15 @@
 #include "Flite.h"
 #include <string.h>
 
-void flitew_init(void) {
-    flite_init();
-}
-
 extern cst_val *flite_voice_list;
-
-void flitew_register_voices() {
-    //    register_cmu_us_rms();
-}
-
-void flitew_print_voices(void) {
-    printf("printing voices\n");
-    for (const cst_val *it = flite_voice_list; it; it = val_cdr(it)) {
-        const cst_val *node = val_car(it);
-        cst_voice *vv = val_voice(node);
-        if (vv && vv->features) {
-            const char *nm = feat_string(vv->features, "name");
-            printf("voice: %s\n", nm ? nm : "(unnamed)");
-        } else {
-            // Older builds may store strings; try best-effort without crashing/logging.
-            // Only attempt val_string if node is actually a string in your build.
-            // If your build doesn’t use strings here, this branch will be skipped.
-            // (Intentionally not calling val_string() blindly to avoid error spam.)
-        }
-    }
-}
-
 extern void usenglish_init(cst_voice *v);
 extern cst_lexicon *cmulex_init(void);
 extern cst_voice *register_cmu_us_rms(const char *voxdir);
 extern cst_voice *register_cmu_us_slt(const char *voxdir);
+
+void flitew_init(void) {
+    flite_init();
+}
 
 void flitew_register_eng_lang(void) {
     // Make the "eng" language+lexicon available to flite_voice_load(...)
@@ -50,6 +28,17 @@ cst_voice *flitew_register_cmu_us_rms(void) {
 cst_voice *flitew_register_cmu_us_slt(void) {
     return register_cmu_us_slt(NULL);
 }
+
+float flitew_voice_get_float_feature(const cst_voice *voice, const char *name) {
+    if (!voice || !voice->features || !name) return ;
+    return get_param_float(voice->features, name, -999);
+}
+
+void flitew_voice_set_float_feature(cst_voice *voice, const char *name, float value) {
+    if (!voice || !voice->features || !name) return;
+    feat_set_float(voice->features, name, value);
+}
+
 
 /// Synthesize `text` with `voice` and return 16-bit mono PCM via malloc.
 /// On success returns 0 and fills out pointers. Call `flitew_free_pcm` to free.

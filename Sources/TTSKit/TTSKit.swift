@@ -12,6 +12,8 @@ public class TTSKit {
     private var voice: UnsafeMutablePointer<cst_voice>?
     private var player = PCMPlayer()
     
+    public var settings = TTSVoiceSettings()
+    
     public init() {
         flitew_init()
         flitew_register_eng_lang()
@@ -37,6 +39,7 @@ public class TTSKit {
             return
         }
         
+        settings.apply(resolvedVoice)
         voice = resolvedVoice
     }
     
@@ -46,6 +49,7 @@ public class TTSKit {
             throw TTSKitError.unknownVoice
         }
         
+        settings.apply(loadedVoice)
         voice = loadedVoice
     }
     
