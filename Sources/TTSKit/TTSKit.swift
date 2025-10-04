@@ -19,11 +19,6 @@ public class TTSKit {
         flitew_register_eng_lang()
     }
     
-    public enum TTSBuiltinVoice {
-        case male       // cmu_us_rms
-        case female     // cmu_us_slt
-    }
-    
     public func loadVoice(_ ttsBuiltinVoice: TTSBuiltinVoice) {
         let builtin: UnsafeMutablePointer<cst_voice>? = {
             switch ttsBuiltinVoice {
@@ -53,7 +48,7 @@ public class TTSKit {
         voice = loadedVoice
     }
     
-    public func speak(text: String) throws {
+    public func speak(text: String, completionHandler: (@Sendable () -> Void)? = nil) throws {
         var samplesPtr: UnsafeMutablePointer<Int16>? = nil
         var count: Int32 = 0
         var rate: Int32 = 0
@@ -69,8 +64,6 @@ public class TTSKit {
             throw NSError(domain: "TTSKit", code: Int(err), userInfo: [NSLocalizedDescriptionKey: "flitew_text_to_pcm failed (\(err))"]) }
         defer { flitew_free_pcm(samples) }
         
-        try player.playPCM(samples: samples, count: Int(count), sampleRate: Int(rate))
+        try player.playPCM(samples: samples, count: Int(count), sampleRate: Int(rate), completionHandler: completionHandler)
     }
-    
-
 }

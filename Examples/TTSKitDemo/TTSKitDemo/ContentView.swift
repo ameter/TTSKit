@@ -32,10 +32,14 @@ struct ContentView: View {
         do {
             try tts.loadVoice(fromLibrary: .cmuUsEey)
             tts.settings.pitchMean = 1000
-            try tts.speak(text: "Hello, World!")
+            try tts.speak(text: "Hello, World!") {
+                print("done")
+            }
             try? await Task.sleep(for: .milliseconds(2000))
             tts.settings.pitchMean = nil
-            try tts.speak(text: "Hello, World!")
+            try tts.speak(text: "Hello, World!") {
+                print("done again")
+            }
         } catch {
             print("Error speaking: \(error)")
         }

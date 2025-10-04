@@ -29,7 +29,7 @@ final class PCMPlayer {
     ///   - samples: Pointer to interleaved mono Int16 PCM samples.
     ///   - count: Number of Int16 samples.
     ///   - sampleRate: Sample rate in Hz (e.g., 16000).
-    public func playPCM(samples: UnsafePointer<Int16>, count: Int, sampleRate: Int) throws {
+    public func playPCM(samples: UnsafePointer<Int16>, count: Int, sampleRate: Int, completionHandler: (@Sendable () -> Void)? = nil) throws {
         let inSampleRate = Double(sampleRate)
         
         // Ensure the engine is running before querying negotiated formats
@@ -105,7 +105,7 @@ final class PCMPlayer {
         let buffer = outBuf
         
         player.stop()
-        player.scheduleBuffer(buffer, at: nil, options: []) { }
+        player.scheduleBuffer(buffer, completionHandler: completionHandler)
         player.play()
     }
 }
