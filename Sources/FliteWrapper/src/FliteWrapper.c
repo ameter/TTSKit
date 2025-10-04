@@ -43,6 +43,7 @@ void flitew_voice_set_f0_shift(cst_voice *voice, float value) {
 
 void flitew_voice_set_f0_target_mean(cst_voice *voice, float value) {
     if (!voice || !voice->features) return;
+    // note: These features are in fact floats. The "int" prefix stands for "international".  Blame Flite.
     static const char key[] = "int_f0_target_mean";
     feat_set_float(voice->features, key, value);
 }
