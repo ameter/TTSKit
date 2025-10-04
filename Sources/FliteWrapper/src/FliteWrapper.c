@@ -29,11 +29,6 @@ cst_voice *flitew_register_cmu_us_slt(void) {
     return register_cmu_us_slt(NULL);
 }
 
-float flitew_voice_get_float_feature(const cst_voice *voice, const char *name) {
-    if (!voice || !voice->features || !name) return ;
-    return get_param_float(voice->features, name, -999);
-}
-
 void flitew_voice_set_float_feature(cst_voice *voice, const char *name, float value) {
     if (!voice || !voice->features || !name) return;
     feat_set_float(voice->features, name, value);
