@@ -11,7 +11,9 @@ final class PCMPlayer {
     private let engine = AVAudioEngine()
     private let player = AVAudioPlayerNode()
     
-    public init() {
+    var isPlaying: Bool { player.isPlaying }
+    
+    init() {
         engine.attach(player)
         
         // Player -> Mixer (automatic negotiation)
@@ -29,7 +31,7 @@ final class PCMPlayer {
     ///   - samples: Pointer to interleaved mono Int16 PCM samples.
     ///   - count: Number of Int16 samples.
     ///   - sampleRate: Sample rate in Hz (e.g., 16000).
-    public func playPCM(samples: UnsafePointer<Int16>, count: Int, sampleRate: Int, completionHandler: (@Sendable () -> Void)? = nil) throws {
+    func playPCM(samples: UnsafePointer<Int16>, count: Int, sampleRate: Int, queue: Bool = false, completionHandler: (@Sendable () -> Void)? = nil) throws {
         let inSampleRate = Double(sampleRate)
         
         // Ensure the engine is running before querying negotiated formats
@@ -104,8 +106,22 @@ final class PCMPlayer {
         
         let buffer = outBuf
         
-        player.stop()
+        if !queue {
+            player.stop()
+        }
         player.scheduleBuffer(buffer, completionHandler: completionHandler)
+        player.play()
+    }
+    
+    func pause() {
+        player.pause()
+    }
+    
+    func stop() {
+        player.stop()
+    }
+    
+    func resume() {
         player.play()
     }
 }

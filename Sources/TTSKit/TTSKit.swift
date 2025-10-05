@@ -14,6 +14,8 @@ public class TTSKit {
     
     public var settings = TTSVoiceSettings()
     
+    public var isPlaying: Bool { player.isPlaying }
+    
     public init() {
         flitew_init()
         flitew_register_eng_lang()
@@ -48,7 +50,7 @@ public class TTSKit {
         voice = loadedVoice
     }
     
-    public func speak(text: String, completionHandler: (@Sendable () -> Void)? = nil) throws {
+    public func speak(text: String, queue: Bool = false, completionHandler: (@Sendable () -> Void)? = nil) throws {
         var samplesPtr: UnsafeMutablePointer<Int16>? = nil
         var count: Int32 = 0
         var rate: Int32 = 0
@@ -64,6 +66,18 @@ public class TTSKit {
             throw NSError(domain: "TTSKit", code: Int(err), userInfo: [NSLocalizedDescriptionKey: "flitew_text_to_pcm failed (\(err))"]) }
         defer { flitew_free_pcm(samples) }
         
-        try player.playPCM(samples: samples, count: Int(count), sampleRate: Int(rate), completionHandler: completionHandler)
+        try player.playPCM(samples: samples, count: Int(count), sampleRate: Int(rate), queue: queue, completionHandler: completionHandler)
+    }
+    
+    public func stop() {
+        player.stop()
+    }
+    
+    public func pause() {
+        player.pause()
+    }
+    
+    public func resume() {
+        player.resume()
     }
 }
