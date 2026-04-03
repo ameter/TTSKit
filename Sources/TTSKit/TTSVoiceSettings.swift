@@ -39,6 +39,10 @@ public class TTSVoiceSettings {
         }
     }
     
+    // Some words can be difficult when passed as short single word utterances.
+    // This setting enabled a substitution table to improve pronounciation in these cases.
+    public var substitutionsEnabled = true
+    
     public func clear() {
         duration = nil
         shift = nil

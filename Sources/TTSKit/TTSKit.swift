@@ -54,9 +54,14 @@ public class TTSKit {
         var samplesPtr: UnsafeMutablePointer<Int16>? = nil
         var count: Int32 = 0
         var rate: Int32 = 0
+        var text = text
         
         if voice == nil {
             loadVoice(.female)
+        }
+        
+        if settings.substitutionsEnabled {
+            text = Substitutions.check(text)
         }
         
         let err = text.withCString { cstr in

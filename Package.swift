@@ -71,7 +71,7 @@ let package = Package(
         ),
         .testTarget(
             name: "TTSKitTests",
-            dependencies: ["TTSKit", "FliteWrapper"]
+            dependencies: ["TTSKit", "FliteWrapper", "TTSVoiceLibrary"]
         ),
         .testTarget(
             name: "FliteWrapperTests",

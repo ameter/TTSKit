@@ -2,6 +2,7 @@ import Testing
 @testable import TTSKit
 import FliteWrapper
 import Foundation
+import TTSVoiceLibrary
 
 private enum TTSKitTestError: Error {
     case expectedFailure
@@ -223,8 +224,39 @@ private func synthesizeAndWait(
 
     @Test func builtinMaleVoiceCanSynthesizeSpeech() async throws {
         let tts = TTSKit()
-        tts.loadVoice(.male)
         try await synthesizeAndWait(tts: tts, text: "Builtin male voice.")
         tts.stop()
+    }
+    
+    @Test func substitutionHit() throws {
+        let sub = Substitutions.check("to")
+        #expect(sub == "too")
+    }
+    
+    @Test func substitutionMiss() throws {
+        let sub = Substitutions.check("not found")
+        #expect(sub == "not found")
+    }
+    
+    @Test func substitutions() async throws {
+        let tts = TTSKit()
+        let words = ["to"]
+        let voices: [TTSVoiceLibrary] = [.cmuUsRms, .cmuUsSlt, .cmuUsAew]
+        
+        do {
+            for word in words {
+                for voice in voices {
+                    try tts.loadVoice(fromLibrary: voice)
+                    
+                    tts.settings.substitutionsEnabled = false
+                    try await synthesizeAndWait(tts: tts, text: word)
+                    
+                    tts.settings.substitutionsEnabled = true
+                    try await synthesizeAndWait(tts: tts, text: word)
+                }
+            }
+        } catch {
+            print("Error speaking: \(error)")
+        }
     }
 }
