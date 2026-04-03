@@ -51,6 +51,7 @@ let package = Package(
             name: "TTSVoiceLibrary",
             dependencies: ["TTSKit"],
             path: "Voices/TTSVoiceLibrary",
+            exclude: ["README.md"],
             resources: [
                 .copy("cmu_us_aew.flitevox"),
                 .copy("cmu_us_awb.flitevox"),
@@ -70,7 +71,7 @@ let package = Package(
         ),
         .testTarget(
             name: "TTSKitTests",
-            dependencies: ["TTSKit"]
+            dependencies: ["TTSKit", "FliteWrapper"]
         ),
         .testTarget(
             name: "FliteWrapperTests",
@@ -78,7 +79,7 @@ let package = Package(
         ),
         .testTarget(
             name: "TTSVoiceLibraryTests",
-            dependencies: ["TTSVoiceLibrary"]
+            dependencies: ["TTSVoiceLibrary", "TTSKit"]
         ),
     ]
 )
