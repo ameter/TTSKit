@@ -11,7 +11,7 @@ TTSKit is available as an SPM package.
 
 1. Add TTSKit to your Xcode project by selecting **File, Add Package Dependencies...** and entering the TTSKit GitHub repository URL: ```https://github.com/ameter/TTSKit``` in the search box.
 
-<img src=".images/add_spm_pkg.png" width="400">
+<img src=".images/add_spm_pkg.png" width="600">
 
 2. Select the **Dependency Rule** you want to use.  **Up to Next Major Version** is a good choice to allow non-breaking updates for dependencies that use [semantic versioning](https://semver.org).
 
@@ -21,7 +21,7 @@ TTSKit is available as an SPM package.
 
 4. Select your **app's target** for each product you want to add.  For prototyping and development, go ahead and add both products to your app's target.  For additional information on voices, including best practices for production apps, see the [Voices](#voices) section of this README.
 
-<img src=".images/add_products.png" width="400">
+<img src=".images/add_products.png" width="600">
 
 5. Click **Add Package**.
 
@@ -128,7 +128,7 @@ if let voiceURL = Bundle.main.url(forResource: "cmu_us_rms", withExtension: "fli
 
 For production apps, you should only include the full **TTSVoiceLibrary** if you specifically want to include **all** available voices.  Otherwise, you can decrease your app's bundle size by not including **TTSVoiceLibrary** in your app's target.  If you previously added it, you can remove it by navigating to your **App's Target**, **General**, **Frameworks, Libraries, and Embedded Content**, selecting **TTSVoiceLibrary**, and clicking the **Minus**.
 
-<img src=".images/remove_product.png" width="400">
+<img src=".images/remove_product.png" width="600">
 
 You can import individual voices by copying the **.flitevox** files into your app and then loading them via the URL.
 
